@@ -271,6 +271,7 @@ GameObject:
   m_Component:
   - component: {fileID: 378029761837848239}
   - component: {fileID: 6534433545768729662}
+  - component: {fileID: 1582233791434832120}
   m_Layer: 0
   m_Name: Hex
   m_TagString: Untagged
@@ -342,3 +343,35 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 2.4, y: 1.4}
   m_EdgeRadius: 0
+--- !u!114 &1582233791434832120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7757973090834281567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fb900e4d6c5b0e4f889e021feb5c708, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  x: 0
+  y: 0
+  pos: {x: 0, y: 0}
+  type: 4
+  terrainSprite: {fileID: 7177911684647195364}
+  fogSprite: {fileID: 7011128769926884398}
+  darkSprite: {fileID: 6661671589977640584}
+  oceanSprites: []
+  grasslandSprites: []
+  prairieSprites: []
+  savannahSprites: []
+  plainSprites: []
+  tundraSprites: []
+  desertSprites: []
+  swampSprites: []
+  arcticSprites: []
+  hillsSprites: []
+  mountainsSprites: []
+  hasTown: 0
+  moveCost: 1
