@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 
@@ -31,8 +32,8 @@ public class Hex : MonoBehaviour
     public Vector2 Pos { get { return pos; } set { pos = value; } }
 
     [SerializeField]
-    private HexType type = HexType.Plain;
-    public HexType Type { get { return type; } }
+    private HexType hexType = HexType.Plain;
+    public HexType Type { get { return hexType; } }
 
     [Header("Basic")]
     [SerializeField]
@@ -52,8 +53,7 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private bool hasTown;
 
-    public bool HasTown {get { return hasTown;} set { hasTown = value;  }
-    }
+    public bool HasTown {get { return hasTown;} set { hasTown = value;  } }
 
     [Header("River")]
     private bool hasRiver;
@@ -85,6 +85,12 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private bool specialHex;
     public bool SpecialHex { get { return specialHex; } set { specialHex = value; } }
+    
+    [SerializeField]
+    private TMP_Text hexText;
+
+    private GameManager gameMgr;
+
 
     
     void Start()
@@ -96,6 +102,56 @@ public class Hex : MonoBehaviour
     {
         
     }
+    
+    private void RandomTerrainSprite(Sprite[] sprites)
+    {
+        int i = Random.Range(0, sprites.Length);
+        terrainSprite.sprite = sprites[i];
+    }
+    
+    private void RandomForestSprite(Sprite[] sprites)
+    {
+        int i = Random.Range(0, sprites.Length);
+        forestSprite.gameObject.SetActive(true);
+        forestSprite.sprite = sprites[i];
+    }
+    
+    
+    public void HexInit(int x, int y, Vector2 pos, GameManager gameMgr, int i)
+    {
+        this.x = x;
+        this.y = y;
+        this.pos = pos;
+        this.gameMgr = gameMgr;
+
+        hexText.text = $"{x},{y}";
+
+        hexName = gameMgr.HexData[i].hexName;
+        hexType = gameMgr.HexData[i].type;
+        terrainSprites = gameMgr.HexData[i].terrainSprites;
+        forestSprites = gameMgr.HexData[i].forestSprites;
+        resourceYield = gameMgr.HexData[i].resourceYield;
+        moveCost = gameMgr.HexData[i].moveCost;
+
+        RandomTerrainSprite(terrainSprites);
+
+        //85% forest
+        int n = Random.Range(1, 101);
+
+        if (n <= 85)
+        {
+            if (forestSprites.Length > 0)
+            {
+                RandomForestSprite(forestSprites);
+                hasForest = true;
+                moveCost += 1;
+            }
+        }
+    }
+
+
+
+
     
     
     
