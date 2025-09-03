@@ -6,7 +6,7 @@ public enum HexType
     Ocean,
     Grassland,
     Prairie,
-    Savannah,
+    Savanna,
     Plain,
     Tundra,
     Desert,
@@ -37,6 +37,9 @@ public class Hex : MonoBehaviour
     [Header("Basic")]
     [SerializeField]
     private SpriteRenderer terrainSprite;
+    
+    [SerializeField]
+    private SpriteRenderer forestSprite;
 
     [Header("Fog of War")]
     [SerializeField]
@@ -45,43 +48,12 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private SpriteRenderer darkSprite;
 
-    [Header("Terrain")]
-    [SerializeField]
-    private Sprite[] oceanSprites;
-
-    [SerializeField]
-    private Sprite[] grasslandSprites;
-
-    [SerializeField]
-    private Sprite[] prairieSprites;
-
-    [SerializeField]
-    private Sprite[] savannahSprites;
-
-    [SerializeField]
-    private Sprite[] plainSprites;
-
-    [SerializeField]
-    private Sprite[] tundraSprites;
-
-    [SerializeField]
-    private Sprite[] desertSprites;
-
-    [SerializeField]
-    private Sprite[] swampSprites;
-
-    [SerializeField]
-    private Sprite[] arcticSprites;
-
-    [SerializeField]
-    private Sprite[] hillsSprites;
-
-    [SerializeField]
-    private Sprite[] mountainsSprites;
-
     [Header("Town")]
     [SerializeField]
     private bool hasTown;
+
+    public bool HasTown {get { return hasTown;} set { hasTown = value;  }
+    }
 
     [Header("River")]
     private bool hasRiver;
@@ -93,6 +65,28 @@ public class Hex : MonoBehaviour
     private int moveCost = 1;
     public int MoveCost { get { return moveCost; } }
     
+    [Header("Terrain")]
+    [SerializeField]
+    private Sprite[] terrainSprites;
+
+    [Header("Forest")]
+    [SerializeField]
+    private Sprite[] forestSprites;
+
+    [SerializeField]
+    private string hexName;
+    public string HexName { get { return hexName; } set { hexName = value; } }
+
+    [SerializeField]
+    private int[] resourceYield;
+    public int[] ResourceYield { get { return resourceYield; } set { resourceYield = value; } }
+
+    [Header("Special")]
+    [SerializeField]
+    private bool specialHex;
+    public bool SpecialHex { get { return specialHex; } set { specialHex = value; } }
+
+    
     void Start()
     {
         
@@ -103,71 +97,6 @@ public class Hex : MonoBehaviour
         
     }
     
-    private void RandomSprite(Sprite[] sprites)
-    {
-        int i = Random.Range(0, sprites.Length);
-        terrainSprite.sprite = sprites[i];
-    }
-    
-    public void GenOceanSprite()
-    {
-        type = HexType.Ocean;
-        moveCost = 1;
-        RandomSprite(oceanSprites);
-    }
     
     
-    public void RandomHexTerrain()
-    {
-        int n = Random.Range(1, 11);
-
-        moveCost = 1;
-
-        switch (n)
-        {
-            case 1:
-                type = HexType.Grassland;
-                RandomSprite(grasslandSprites);
-                break;
-            case 2:
-                type = HexType.Prairie;
-                RandomSprite(prairieSprites); ;
-                break;
-            case 3:
-                type = HexType.Savannah;
-                RandomSprite(savannahSprites);
-                break;
-            case 4:
-                type = HexType.Plain;
-                RandomSprite(plainSprites);
-                break;
-            case 5:
-                type = HexType.Tundra;
-                RandomSprite(tundraSprites);
-                break;
-            case 6:
-                type = HexType.Desert;
-                RandomSprite(desertSprites);
-                break;
-            case 7:
-                type = HexType.Swamp;
-                RandomSprite(swampSprites);
-                moveCost = 2;
-                break;
-            case 8:
-                type = HexType.Arctic;
-                RandomSprite(arcticSprites);
-                break;
-            case 9:
-                type = HexType.Hills;
-                RandomSprite(hillsSprites);
-                moveCost = 2;
-                break;
-            case 10:
-                type = HexType.Mountains;
-                RandomSprite(mountainsSprites);
-                moveCost = 3;
-                break;
-        }
-    }
 }
