@@ -148,6 +148,19 @@ public class Hex : MonoBehaviour
             }
         }
     }
+    
+    public void ToggleAllBasicText(bool flag)
+    {
+        hexText.gameObject.SetActive(flag);
+    }
+    
+    public void ClearForest()
+    {
+        hasForest = false;
+        forestSprite.gameObject.SetActive(false);
+    }
+
+
 
 
 

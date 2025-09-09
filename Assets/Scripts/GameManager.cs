@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,6 +15,26 @@ public class GameManager : MonoBehaviour
 
     public const int WIDTH = 50; //no. of Column in this map
     public const int HEIGHT = 60; //no. of Row in this map
+    
+    // Biome variables
+    public const int ARCTICNORTH = HEIGHT - 2; //58
+    public const int ARCTICSOUTH = 2;
+
+    public const int TUNDRANORTH = HEIGHT - 6; //54
+    public const int TUNDRASOUTH = 6;
+
+    public const int GRASSNORTH = HEIGHT - 12; //48
+    public const int GRASSSOUTH = 12;
+
+    public const int PRAIRIENORTH = HEIGHT - 20; //40
+    public const int PRAIRIESOUTH = 20;
+    
+    public const int SAVANNANORTH = HEIGHT - 24; //36
+    public const int SAVANNASOUTH = 24;
+
+    public const int TROPICALNORTH = HEIGHT - 30; //30
+    public const int TROPICALSOUTH = 30;
+
 
     [SerializeField]
     private Hex[,] allHexes = new Hex[WIDTH, HEIGHT];
@@ -39,12 +60,14 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
+        DetermineOcean();
         GenerateAllHexes();
     }
 
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.I))
+            ToggleHexText();
     }
     
     
@@ -59,15 +82,103 @@ public class GameManager : MonoBehaviour
 
                 GameObject hexObj = Instantiate(hexPrefab, hexPos, Quaternion.identity, hexParent);
                 Hex hex = hexObj.GetComponent<Hex>();
+                
+                int n = Random.Range(oceanEdgeIndex - 3, oceanEdgeIndex + 4);
 
-                int i = Random.Range(1, hexData.Length);
-                hex.HexInit(x, y, hexPos, this, i);//Land
+                if (x >= n)
+                    hex.HexInit(x, y, hexPos, this, 0);//Ocean
+                else
+                {
+                    //int i = Random.Range(1, hexData.Length);
+                    //hex.HexInit(x, y, hexPos, this, i);//Land
+                    
+                    GenerateAllBiomes(x, y, hex,hexPos);//Land with all biomes
+                }
             
                 //Debug.Log($"{x}:{y}");
                 allHexes[x, y] = hex;
             }
         }
     }
+    
+    private void ToggleHexText()
+    {
+        foreach (Hex hex in allHexes)
+            hex.ToggleAllBasicText(!showingText);
+
+        showingText = !showingText;
+    }
+    
+    private void DetermineOcean()
+    {
+        oceanEdgeIndex = WIDTH - Random.Range(7, 10);
+        //Debug.Log($"min:{oceanEdgeIndex}");
+    }
+    
+    
+    private void GenerateBiome(int x, int y, Hex hex, Vector3 hexPos, int defaultTerrain, List<int> otherTerrain)
+    {
+        int n = Random.Range(1, 101);
+
+        if (n <= 50)
+            hex.HexInit(x, y, hexPos, this, defaultTerrain);//Main Biome Land
+        else
+        {
+            int i = Random.Range(0, otherTerrain.Count);
+            hex.HexInit(x, y, hexPos, this, otherTerrain[i]);//Other Biome Land
+        }
+    }
+    
+    private void GenerateAllBiomes(int x, int y, Hex hex, Vector3 hexPos)
+    {
+        int n = Random.Range(1, 101);
+
+        //Arctic
+        if ((y >= 0 && y < ARCTICSOUTH) || (y >= ARCTICNORTH && y < HEIGHT))
+        {
+            GenerateBiome(x, y, hex, hexPos, 8, new List<int> { 5 });//Tundra
+        }
+
+        //Tundra
+        else if ((y >= ARCTICSOUTH && y < TUNDRASOUTH) || (y >= TUNDRANORTH && y < ARCTICNORTH))
+        {
+            GenerateBiome(x, y, hex, hexPos, 5, new List<int> { 1 });//Grassland
+        }
+
+        //Grassland
+        else if ((y >= TUNDRASOUTH && y < GRASSSOUTH) || (y >= GRASSNORTH && y < TUNDRANORTH))
+        {
+            GenerateBiome(x, y, hex, hexPos, 1, new List<int> { 2, 5 });//Prairie, Tundra
+        }
+
+        //Prairie
+        else if ((y >= GRASSSOUTH && y < PRAIRIESOUTH) || (y >= PRAIRIENORTH && y < GRASSNORTH))
+        {
+            GenerateBiome(x, y, hex, hexPos, 2, new List<int> { 1, 3, 4 });//Grassland, Savanna, Plain
+        }
+
+        //Savanna
+        else if ((y >= PRAIRIESOUTH && y < SAVANNASOUTH) || (y >= SAVANNANORTH && y < PRAIRIENORTH))
+        {
+            GenerateBiome(x, y, hex, hexPos, 3, new List<int> { 1, 2, 4, 6 });//Grassland, Prairie, Plain, Desert
+        }
+
+        //Tropical
+        else if ((y >= SAVANNASOUTH && y < TROPICALSOUTH) || (y >= 30 && y < SAVANNANORTH))
+        {
+            GenerateBiome(x, y, hex, hexPos, 4, new List<int> { 1, 7 });//Plain, Swamp
+        }
+
+        //**Special Conditions**
+        //Hills
+        if (n > 80)
+        {
+            hex.ClearForest();
+            GenerateBiome(x, y, hex, hexPos, 9, new List<int> { 10 });//Mountains
+        }
+    }
+
+
 
 
 }
