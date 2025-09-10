@@ -49,6 +49,18 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private int oceanEdgeIndex;
+    
+    [SerializeField]
+    private Faction playerFaction;
+    public Faction PlayerFaction { get { return playerFaction; } }
+
+    [SerializeField]
+    private Faction[] factions; //England, France, Spain, Netherland, Portugal
+    public Faction[] Factions { get { return factions; } }
+
+    [SerializeField]
+    private FactionData[] factionData;
+    public FactionData[] FactionData { get { return factionData; } }
 
     public static GameManager instance;
 
@@ -60,6 +72,8 @@ public class GameManager : MonoBehaviour
     
     void Start()
     {
+        SetUpFaction();
+        
         DetermineOcean();
         GenerateAllHexes();
     }
@@ -92,7 +106,7 @@ public class GameManager : MonoBehaviour
                     //int i = Random.Range(1, hexData.Length);
                     //hex.HexInit(x, y, hexPos, this, i);//Land
                     
-                    GenerateAllBiomes(x, y, hex,hexPos);//Land with all biomes
+                    GenerateAllBiomes(x, y, hex, hexPos);//Land with all biomes
                 }
             
                 //Debug.Log($"{x}:{y}");
@@ -175,6 +189,14 @@ public class GameManager : MonoBehaviour
         {
             hex.ClearForest();
             GenerateBiome(x, y, hex, hexPos, 9, new List<int> { 10 });//Mountains
+        }
+    }
+    
+    private void SetUpFaction()
+    {
+        for (int i = 0; i < factions.Length; i++)
+        {
+            factions[i].FactionInit(factionData[i]);
         }
     }
 

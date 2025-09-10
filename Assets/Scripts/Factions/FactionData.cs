@@ -3,7 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "FactionData", menuName = "Scriptable Objects/FactionData")]
 public class FactionData : ScriptableObject
 {
-    public Factions.Nation nation;
+    public Nation nation;
     public bool isEuropean;
     public Sprite flagIcon;
     public Sprite shieldIcon;
