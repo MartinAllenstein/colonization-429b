@@ -1,14 +1,10 @@
 fileFormatVersion: 2
-guid: 78cb20160a217184492c08e17cdc3e77
-AssetOrigin:
-  serializedVersion: 1
-  productId: 269590
-  packageName: 'Icons: Pirates & Age of Sail'
-  packageVersion: 1.0.0
-  assetPath: Assets/Icons Pirates Age of Sail/icons/ship_caravel.png
-  uploadId: 624733
+guid: 75e85521f530822498708660ef33d8c3
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 7320001909096663879
+    second: 07.Farmer_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 128
+  spritePixelsToUnits: 672
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,11 +68,11 @@ TextureImporter:
   ignorePngGamma: 0
   applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 256
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -102,7 +98,29 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: 07.Farmer_0
+      rect:
+        serializedVersion: 2
+        x: 40
+        y: 27
+        width: 495
+        height: 598
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74b43ea04fed59560800000000000000
+      internalID: 7320001909096663879
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -116,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      07.Farmer_0: 7320001909096663879
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -1,14 +1,10 @@
 fileFormatVersion: 2
-guid: 78cb20160a217184492c08e17cdc3e77
-AssetOrigin:
-  serializedVersion: 1
-  productId: 269590
-  packageName: 'Icons: Pirates & Age of Sail'
-  packageVersion: 1.0.0
-  assetPath: Assets/Icons Pirates Age of Sail/icons/ship_caravel.png
-  uploadId: 624733
+guid: adf97d1b51b4c634397818ca5dc27280
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: -88740573433103168
+    second: 01.Free Colonist_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 128
+  spritePixelsToUnits: 672
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -72,11 +68,11 @@ TextureImporter:
   ignorePngGamma: 0
   applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 2048
+    maxTextureSize: 256
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -102,7 +98,29 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: 01.Free Colonist_0
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 37
+        width: 384
+        height: 566
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ccfa5b2beab4cef0800000000000000
+      internalID: -88740573433103168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -116,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      01.Free Colonist_0: -88740573433103168
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
