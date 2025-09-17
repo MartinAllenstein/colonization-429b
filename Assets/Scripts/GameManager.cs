@@ -250,6 +250,14 @@ public class GameManager : MonoBehaviour
         ship.UnitInit(this, faction, navalUnitData[0]); //Caravel
         ship.SetupPosition(hex);
         faction.Units.Add(ship); //First Unit of European nations is a ship
+
+        if (faction == playerFaction)
+        {
+            ClearDarkFogAroundUnit(ship);
+            SelectPlayerUnit(ship);
+            CameraController.instance.MoveCamera(ship.CurPos);
+            ship.Visible = true;
+        }
     }
 
 
@@ -259,6 +267,62 @@ public class GameManager : MonoBehaviour
         {
             GenerateEuropeanShip(factions[i]);
         }
+    }
+
+    
+    public void ShowToggleBorder(Unit unit)
+    {
+        if (unit.Faction == playerFaction)
+            unit.ToggleBorder(true, Color.green);
+        else
+            unit.ToggleBorder(true, Color.red);
+    }
+
+    
+    public void ClearToggleBorder(Unit unit)
+    {
+        unit.ToggleBorder(false, Color.green);
+    }
+
+
+    public void FocusPlayerUnit(Unit unit)
+    {
+        ShowToggleBorder(unit);
+    }
+
+
+    public void ClearDarkFogAroundUnit(Unit unit)
+    {
+        unit.CurHex.DiscoverHex();
+
+        List<Hex> adjHexes = HexCalculator.GetHexAround(allHexes, unit.CurHex);
+
+        //Debug.Log(adjHexes.Count);
+
+        foreach (Hex hex in adjHexes)
+        {
+            hex.DiscoverHex();
+        }
+    }
+
+
+    public void SelectPlayerUnit(Unit unit)
+    {
+        if (curUnit != null)
+        {
+            ClearToggleBorder(curUnit);
+
+            if (curUnit.UnitStatus == UnitStatus.OnBoard)
+                curUnit.gameObject.SetActive(false);
+        }
+
+        unit.gameObject.SetActive(true);
+
+        curUnit = unit;
+        //UpdateCanGoHex();
+
+        FocusPlayerUnit(curUnit);
+        //Debug.Log(curUnit);
     }
 
 

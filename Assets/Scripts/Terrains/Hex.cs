@@ -159,6 +159,32 @@ public class Hex : MonoBehaviour
         hasForest = false;
         forestSprite.gameObject.SetActive(false);
     }
+    
+    private void ToggleFog(bool flag)
+    {
+        fogSprite.gameObject.SetActive(flag);
+    }
+
+
+    private void ToggleDark(bool flag)
+    {
+        darkSprite.gameObject.SetActive(flag);
+    }
+
+
+    public void DiscoverHex()
+    {
+        ToggleFog(false);
+        ToggleDark(false);
+    }
+
+
+    public void SeenHex()
+    {
+        ToggleFog(true);
+        ToggleDark(false);
+    }
+
 
 
 
