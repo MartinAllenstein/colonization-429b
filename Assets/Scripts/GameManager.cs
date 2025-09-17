@@ -61,6 +61,35 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private FactionData[] factionData;
     public FactionData[] FactionData { get { return factionData; } }
+    
+    
+    [SerializeField]
+    private GameObject landUnitPrefab;
+
+    [SerializeField]
+    private GameObject navalUnitPrefab;
+
+    [SerializeField]
+    private GameObject townPrefab;
+
+
+    // SelectUnit
+    [SerializeField]
+    private Unit curUnit;
+    public Unit CurUnit { get { return curUnit; } set { curUnit = value; } }
+
+    [SerializeField]
+    private Unit curAiUnit;
+    public Unit CurAiUnit { get { return curAiUnit; } set { curAiUnit = value; } }
+    
+    [SerializeField]
+    private LandUnitData[] landUnitData;
+    public LandUnitData[] LandUnitData { get { return landUnitData; } }
+
+    [SerializeField]
+    private NavalUnitData[] navalUnitData;
+    public NavalUnitData[] NavalUnitData { get { return navalUnitData; } }
+    
 
     public static GameManager instance;
 
@@ -73,9 +102,11 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         SetUpFaction();
-        
+        SelectPlayerFaction();
         DetermineOcean();
         GenerateAllHexes();
+
+        GenerateAllEuropeanShips();
     }
 
     void Update()
@@ -199,8 +230,36 @@ public class GameManager : MonoBehaviour
             factions[i].FactionInit(factionData[i]);
         }
     }
+    
+    public void SelectPlayerFaction()
+    {
+        int i = 0; //England
+        playerFaction = factions[i];
+    }
+    
+    
+    private void GenerateEuropeanShip(Faction faction)
+    {
+        int x = WIDTH - 1; //near right edge of a map
+        int y = Random.Range(0, HEIGHT);
+        Hex hex = allHexes[x, y];
+
+        GameObject obj = Instantiate(navalUnitPrefab, hex.Pos, Quaternion.identity, faction.UnitParent);
+        NavalUnit ship = obj.GetComponent<NavalUnit>();
+
+        ship.UnitInit(this, faction, navalUnitData[0]); //Caravel
+        ship.SetupPosition(hex);
+        faction.Units.Add(ship); //First Unit of European nations is a ship
+    }
 
 
+    private void GenerateAllEuropeanShips()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            GenerateEuropeanShip(factions[i]);
+        }
+    }
 
 
 }

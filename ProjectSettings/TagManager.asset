@@ -45,6 +45,9 @@ TagManager:
   - name: Terrain
     uniqueID: 3801708781
     locked: 0
+  - name: Unit
+    uniqueID: 1160039797
+    locked: 0
   - name: FogOfWar
     uniqueID: 43213781
     locked: 0
