@@ -71,6 +71,17 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private GameObject townPrefab;
+    
+    [SerializeField]
+    private bool playerTurn = true;
+    public bool PlayerTurn { get { return playerTurn; } set { playerTurn = value; } }
+
+    [SerializeField]
+    private int gameTurn = 1;
+    public int GameTurn { get { return gameTurn; } set { gameTurn = value; } }
+
+    [SerializeField]
+    private int nativeTownNum;
 
 
     // SelectUnit
@@ -107,12 +118,21 @@ public class GameManager : MonoBehaviour
         GenerateAllHexes();
 
         GenerateAllEuropeanShips();
+        GenerateAllEuropeanExplorerUnits();
+        GenerateAllNativeTowns();
+        GenerateAllNativeUnits();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.I))
             ToggleHexText();
+        
+        if (Input.GetKeyDown(KeyCode.Tab))
+            SelectNextPlayerUnit();
+        
+        if (Input.GetKeyDown(KeyCode.Backspace))
+            Endturn();
     }
     
     
@@ -311,12 +331,14 @@ public class GameManager : MonoBehaviour
         if (curUnit != null)
         {
             ClearToggleBorder(curUnit);
+            curUnit.SetUnitToNormalLayerOrder();
 
             if (curUnit.UnitStatus == UnitStatus.OnBoard)
                 curUnit.gameObject.SetActive(false);
         }
 
         unit.gameObject.SetActive(true);
+        unit.SetUnitToFrontLayerOrder();
 
         curUnit = unit;
         //UpdateCanGoHex();
@@ -325,5 +347,210 @@ public class GameManager : MonoBehaviour
         //Debug.Log(curUnit);
     }
 
+    
+    public bool CheckIfHexIsAdjacent(Hex centerHex, Hex targetHex)
+    {
+        List<Hex> adjHexes = HexCalculator.GetHexAround(allHexes, centerHex);
 
+        return (adjHexes.Contains(targetHex)) ? true : false;
+    }
+
+    public void LeaveSeenFogAroundUnit(Unit unit)
+    {
+        unit.CurHex.SeenHex();
+
+        List<Hex> adjHexes = HexCalculator.GetHexAround(allHexes, unit.CurHex);
+
+        //Debug.Log(adjHexes.Count);
+
+        foreach (Hex hex in adjHexes)
+        {
+            hex.SeenHex();
+        }
+    }
+
+    public void ClearDarkFogAroundEveryUnit(Faction faction)
+    {
+        foreach (Unit unit in faction.Units)
+        {
+            //Debug.Log($"{unit.UnitName} discovers:");
+            ClearDarkFogAroundUnit(unit);
+        }
+    }
+
+    
+    private void GeneratePassengerUnit(Faction faction, Hex hex, int unitId, bool show, NavalUnit ship)//ship passengers
+    {
+        GameObject obj = Instantiate(landUnitPrefab, hex.Pos, Quaternion.identity, ship.PassengerParent.transform);
+        LandUnit unit = obj.GetComponent<LandUnit>();
+
+        unit.UnitInit(this, faction, landUnitData[unitId]);
+        unit.SetupPosition(hex);
+
+        unit.UnitStatus = UnitStatus.OnBoard;
+        obj.SetActive(false);
+
+        faction.Units.Add(unit);
+        ship.Passengers.Add(unit);
+    }
+
+
+    private void GenerateAllEuropeanExplorerUnits()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            NavalUnit firstShip = factions[i].Units[0].gameObject.GetComponent<NavalUnit>();
+
+            GeneratePassengerUnit(factions[i], firstShip.CurHex, 1, false, firstShip); //Veteran Soldiers
+            GeneratePassengerUnit(factions[i], firstShip.CurHex, 2, false, firstShip); //Hardy Pioneers
+        }
+    }
+    
+    private int FindIndexOfCurUnit()
+    {
+        if (playerFaction.Units.Contains(curUnit))
+        {
+            for (int i = 0; i < playerFaction.Units.Count; i++)
+            {
+                if (curUnit == playerFaction.Units[i])
+                    return i;
+            }
+            return -1;
+        }
+        else
+            return -1;
+    }
+    
+    private void SelectNextPlayerUnit()
+    {
+        int i = FindIndexOfCurUnit();
+        i++;
+
+        if (i >= playerFaction.Units.Count)
+            i = 0;
+
+        SelectPlayerUnit(playerFaction.Units[i]);
+        CameraController.instance.MoveCamera(curUnit.transform.position);
+    }
+
+    public void GenerateTown(Faction faction, Hex curHex)
+    {
+        GameObject obj = Instantiate(townPrefab, curHex.Pos, Quaternion.identity, faction.TownParent);
+        Town town = obj.GetComponent<Town>();
+
+        town.TownInit(this, faction);
+        town.CurHex = curHex;
+        town.CurPos = town.CurHex.Pos;
+        faction.Towns.Add(town);
+
+        curHex.HasTown = true;
+    }
+    
+    private void GenerateAllNativeTowns()
+    {
+        for (int i = 5; i < factions.Length; i++)
+        {
+            nativeTownNum = Random.Range(5, 10);
+
+            for (int j = 0; j < nativeTownNum; j++)
+            {
+                int landEdge = oceanEdgeIndex - 1;
+
+                int x = Random.Range(0, landEdge);
+                int y = Random.Range(0, HEIGHT);
+                Hex hex = allHexes[x, y];
+
+                if (HexCalculator.CheckIfHexAroundHasTown(allHexes, hex))
+                    continue;
+
+                if (hex.HexType != HexType.Ocean)
+                    GenerateTown(factions[i], hex);
+            }
+        }
+    }
+    
+    private void GenerateLandUnit(Faction faction, Hex hex, int unitId, bool show)//normal land units
+    {
+        GameObject obj = Instantiate(landUnitPrefab, hex.Pos, Quaternion.identity, faction.UnitParent);
+        LandUnit unit = obj.GetComponent<LandUnit>();
+
+        unit.UnitInit(this, faction, landUnitData[unitId]);
+        unit.SetupPosition(hex);
+        unit.ShowHideSprite(show);
+
+        faction.Units.Add(unit);
+    }
+    
+    private void GenerateAllNativeUnits()
+    {
+        for (int i = 5; i < factions.Length; i++)
+        {
+            foreach (Town town in factions[i].Towns)
+            {
+                GenerateLandUnit(factions[i], town.CurHex, 4, false); //Tropical Indian
+            }
+        }
+    }
+    
+    public void CheckUnitClearingLand(Faction faction, Unit unit)
+    {
+        if (unit.UnitStatus == UnitStatus.Clearing)
+        {
+            unit.CurHex.ClearForest();
+            unit.UnitStatus = UnitStatus.None;
+        }
+    }
+    
+    public void CheckUnitBuildingSettlement(Faction faction, Unit unit)
+    {
+        if (unit.UnitStatus == UnitStatus.Building)
+        {
+            GenerateTown(faction, unit.CurHex);
+            unit.UnitStatus = UnitStatus.None;
+        }
+    }
+
+    public void ResetAllUnits(Faction faction)
+    {
+        foreach (Unit unit in faction.Units)
+        {
+            CheckUnitClearingLand(faction, unit);
+            CheckUnitBuildingSettlement(faction, unit);
+            unit.MovePoint = unit.MovePointMax;
+        }
+    }
+    
+    public void SelectAiUnit(Unit unit)
+    {
+        //Debug.Log($"{unit.Faction}:{unit.UnitName}");
+
+        if (curUnit != null)
+            ClearToggleBorder(curUnit);
+
+        curAiUnit = unit;
+        //UpdateCanGoHex();
+
+        FocusPlayerUnit(curAiUnit);
+        //Debug.Log($"{curAiUnit.Faction}:{curAiUnit.UnitName}");
+    }
+    
+    public void SelectPlayerFirstUnit()
+    {
+        if (playerFaction.Units.Count > 0)
+        {
+            Unit firstUnit = playerFaction.Units[0];
+            SelectPlayerUnit(firstUnit);
+            CameraController.instance.MoveCamera(firstUnit.CurPos);
+        }
+    }
+    
+    public void Endturn()
+    {
+        if (curUnit != null)
+            curUnit.ToggleBorder(false, Color.green);
+
+        Debug.Log("End Turn");
+        playerTurn = false;
+        AIManager.instance.StartAITurn();
+    }
 }

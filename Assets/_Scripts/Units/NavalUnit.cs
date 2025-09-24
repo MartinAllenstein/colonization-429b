@@ -51,15 +51,25 @@ public class NavalUnit : Unit
         armed = data.armed;
         cargoHoldNum = data.cargoHoldNum;
     }
-
-
-    void Start()
+    
+    public override void PrepareMoveToHex(Hex targetHex) //Begin to move by RC or AI auto movement
     {
-        
+        base.PrepareMoveToHex(targetHex);
+
+        if (targetHex.HexType != HexType.Ocean)
+        {
+            StayOnHex(curHex);
+        }
     }
-
-    void Update()
+    
+    protected override void StayOnHex(Hex hex)
     {
-        
+        base.StayOnHex(hex);
+
+        foreach (LandUnit unit in passengers)
+        {
+            unit.CurHex = hex;
+            unit.CurPos = hex.Pos;
+        }
     }
 }

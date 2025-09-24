@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 
 public enum HexType
@@ -33,7 +34,7 @@ public class Hex : MonoBehaviour
 
     [SerializeField]
     private HexType hexType = HexType.Plain;
-    public HexType Type { get { return hexType; } }
+    public HexType HexType { get { return hexType; } }
 
     [Header("Basic")]
     [SerializeField]
@@ -60,6 +61,7 @@ public class Hex : MonoBehaviour
 
     [Header("Forest")]
     private bool hasForest;
+    public bool HasForest { get { return hasForest; } set { hasForest = value; } }
 
     [SerializeField]
     private int moveCost = 1;
@@ -89,6 +91,10 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private TMP_Text hexText;
 
+    [SerializeField]
+    protected bool visible = false;
+    public bool Visible { get { return visible; } set { visible = value; } }
+    
     private GameManager gameMgr;
 
 
@@ -170,22 +176,33 @@ public class Hex : MonoBehaviour
     {
         darkSprite.gameObject.SetActive(flag);
     }
-
-
+    
     public void DiscoverHex()
     {
         ToggleFog(false);
         ToggleDark(false);
+        visible = true;
     }
-
-
+    
     public void SeenHex()
     {
         ToggleFog(true);
         ToggleDark(false);
+        visible = false;
     }
 
-
+    public void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            //Debug.Log($"Hex:{x}, {y}");
+            if (gameMgr.CheckIfHexIsAdjacent(gameMgr.CurUnit.CurHex, this))
+            {
+                //Debug.Log("True");
+                gameMgr.CurUnit.PrepareMoveToHex(this);
+            }
+        }
+    }
 
 
 

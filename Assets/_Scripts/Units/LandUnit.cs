@@ -83,8 +83,85 @@ public class LandUnit : Unit
         
     }
 
-    void Update()
+    protected override void Update()
     {
-        
+        base.Update();
+
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (this == gameMgr.CurUnit)
+                BuildSettlement();
+        }
+
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (this == gameMgr.CurUnit)
+                ClearingLand();
+        }
     }
+    
+    private void MakeLandfall()
+    {
+        //Make Landfall
+        unitStatus = UnitStatus.None;
+        gameObject.transform.parent = faction.UnitParent.transform;
+    }
+    
+    public void ClearingLand()
+    {
+        if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HexType == HexType.Hills || !curHex.HasForest)
+        {
+            //warning has to be cleared land
+            Debug.Log("Must be on Forest");
+        }
+        else if (toolsNum < 20)
+        {
+            //warning not enough tools
+            Debug.Log("Not enough tools");
+        }
+        else
+        {
+            unitStatus = UnitStatus.Clearing;
+            toolsNum -= 20;
+        }
+    }
+    
+    public void BuildSettlement()
+    {
+        Debug.Log("Build Settlement");
+
+        if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HasForest)
+        {
+            //warning has to be cleared land
+            Debug.Log("Must be on Cleared Land");
+        }
+        else if (toolsNum < 20)
+        {
+            //warning not enough tools
+            Debug.Log("Not enough tools");
+        }
+        else
+        {
+            unitStatus = UnitStatus.Building;
+            toolsNum -= 20;
+        }
+    }
+    
+    public override void PrepareMoveToHex(Hex targetHex) //Begin to move by RC or AI auto movement
+    {
+        //Debug.Log($"{unitName}:walks");
+
+        if (targetHex.HexType != HexType.Ocean)
+        {
+            base.PrepareMoveToHex(targetHex);
+
+            if (unitStatus == UnitStatus.OnBoard)
+                MakeLandfall();
+        }
+        else
+        {
+            StayOnHex(curHex);
+        }
+    }
+    
 }
