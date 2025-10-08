@@ -130,6 +130,16 @@ public class Hex : MonoBehaviour
         this.pos = pos;
         this.gameMgr = gameMgr;
 
+        // Sorting Order
+        int baseOrder = this.y * -10;
+        
+        terrainSprite.sortingOrder = baseOrder;
+        forestSprite.sortingOrder = baseOrder + 1;
+        fogSprite.sortingOrder = baseOrder + 5;
+        darkSprite.sortingOrder = baseOrder + 6;
+        
+
+        
         hexText.text = $"{x},{y}";
 
         hexName = gameMgr.HexData[i].hexName;
@@ -138,6 +148,16 @@ public class Hex : MonoBehaviour
         forestSprites = gameMgr.HexData[i].forestSprites;
         resourceYield = gameMgr.HexData[i].resourceYield;
         moveCost = gameMgr.HexData[i].moveCost;
+
+        // Arctic, Hills, Mountains Sorting Order
+        switch (hexType)
+        {
+            case HexType.Arctic:
+            case HexType.Hills:
+            case HexType.Mountains:
+                terrainSprite.sortingOrder = baseOrder + 1;
+                break;
+        }
 
         RandomTerrainSprite(terrainSprites);
 
