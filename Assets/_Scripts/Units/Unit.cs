@@ -13,7 +13,9 @@ public enum UnitStatus
     OnBoard,
     Fortified,
     Clearing,
-    Building
+    Building,
+    WorkInField,
+    WorkInTown
 }
 
 public class Unit : MonoBehaviour
@@ -74,6 +76,7 @@ public class Unit : MonoBehaviour
     [Header("Unit")]
     [SerializeField]
     protected SpriteRenderer unitSprite;
+    public SpriteRenderer UnitSprite { get { return unitSprite; } }
 
     [Header("Flag")]
     [SerializeField]
@@ -155,11 +158,17 @@ public class Unit : MonoBehaviour
     
     protected virtual void StayOnHex(Hex targetHex)
     {
+        //Old Hex
+        curHex.UnitsInHex.Remove(this);
+        
         isMoving = false;
         curHex = targetHex;
         targetHex = null;
         transform.position = curHex.transform.position; //confirm position to match this hex
 
+        //New Hex
+        curHex.UnitsInHex.Add(this);
+        
         if (faction == gameMgr.PlayerFaction)
         {
             gameMgr.ClearDarkFogAroundUnit(this);
@@ -185,6 +194,21 @@ public class Unit : MonoBehaviour
                 gameMgr.ClearDarkFogAroundEveryUnit(faction);
         }
     }
+    
+    public void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            if (gameMgr.CheckIfHexIsAdjacent(gameMgr.CurUnit.CurHex, curHex))
+            {
+                if (faction == gameMgr.PlayerFaction)//same side unit
+                    gameMgr.CurUnit.PrepareMoveToHex(curHex);
+                else//diff side unit
+                    Debug.Log($"{gameMgr.CurUnit} Attacks {unitName}");
+            }
+        }
+    }
+
 
     
 }

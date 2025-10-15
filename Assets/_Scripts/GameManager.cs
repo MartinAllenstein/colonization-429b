@@ -100,7 +100,10 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private NavalUnitData[] navalUnitData;
     public NavalUnitData[] NavalUnitData { get { return navalUnitData; } }
-    
+
+    [SerializeField]
+    private Town curTown;
+    public Town CurTown { get { return curTown; } set { curTown = value; } }
 
     public static GameManager instance;
 
@@ -388,6 +391,7 @@ public class GameManager : MonoBehaviour
         unit.SetupPosition(hex);
 
         unit.UnitStatus = UnitStatus.OnBoard;
+        unit.TransportShip = ship;
         obj.SetActive(false);
 
         faction.Units.Add(unit);
@@ -444,6 +448,9 @@ public class GameManager : MonoBehaviour
         faction.Towns.Add(town);
 
         curHex.HasTown = true;
+        curHex.Town = town;
+
+        curTown = town;
     }
     
     private void GenerateAllNativeTowns()
@@ -509,6 +516,20 @@ public class GameManager : MonoBehaviour
             unit.UnitStatus = UnitStatus.None;
         }
     }
+    
+    public NavalUnit CheckIfHexHasOurShipToBoard(Hex hex)
+    {
+        foreach (Unit unit in hex.UnitsInHex)
+        {
+            if (unit.UnitType == UnitType.Naval && unit.Faction == playerFaction)
+            {
+                NavalUnit ship = (NavalUnit)unit;
+                if (ship.Passengers.Count < ship.CargoHoldNum)
+                    return ship;
+            }
+        }
+        return null;
+    }
 
     public void ResetAllUnits(Faction faction)
     {
@@ -552,5 +573,13 @@ public class GameManager : MonoBehaviour
         Debug.Log("End Turn");
         playerTurn = false;
         AIManager.instance.StartAITurn();
+    }
+    public void SetupCurrentTown(Town town)//setup town panel
+    {
+        curTown = town;
+        Hex[] aroundHexes = HexCalculator.GetHexAroundToArray(allHexes, curTown.CurHex);
+
+        UIManager.instance.ToggleTownPanel(true);
+        UIManager.instance.SetupCurrentTown(curTown.CurHex, aroundHexes);
     }
 }

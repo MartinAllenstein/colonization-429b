@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 
 public enum LandUnitType
@@ -45,8 +46,12 @@ public class LandUnit : Unit
     [SerializeField]
     private bool hasHorse = false;
     public bool HasHorse { get { return hasHorse; } set { hasHorse = value; } }
-
-
+    
+    
+    [SerializeField]
+    private NavalUnit transportShip;
+    public NavalUnit TransportShip { get { return transportShip; } set { transportShip = value; } }
+    
     
     public void UnitInit(GameManager gameMgr, Faction fact, LandUnitData data)
     {
@@ -98,6 +103,15 @@ public class LandUnit : Unit
             if (this == gameMgr.CurUnit)
                 ClearingLand();
         }
+
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (this == gameMgr.CurUnit && curHex.Town)
+            {
+                if (curHex.Town != null)
+                    gameMgr.SetupCurrentTown(curHex.Town);
+            }
+        }
     }
     
     private void MakeLandfall()
@@ -105,6 +119,8 @@ public class LandUnit : Unit
         //Make Landfall
         unitStatus = UnitStatus.None;
         gameObject.transform.parent = faction.UnitParent.transform;
+        transportShip.Passengers.Remove(this);
+        transportShip = null;
     }
     
     public void ClearingLand()
@@ -158,10 +174,35 @@ public class LandUnit : Unit
             if (unitStatus == UnitStatus.OnBoard)
                 MakeLandfall();
         }
+        else if (gameMgr.CheckIfHexHasOurShipToBoard(targetHex))
+        {
+            base.PrepareMoveToHex(targetHex);
+        }
         else
         {
             StayOnHex(curHex);
         }
     }
     
+    public void BoardingShip(NavalUnit ship)
+    {
+        ship.Passengers.Add(this);
+        transportShip = ship;
+        gameObject.transform.parent = ship.PassengerParent.transform;
+        unitStatus = UnitStatus.OnBoard;
+    }
+    
+    protected override void StayOnHex(Hex hex)
+    {
+        base.StayOnHex(hex);
+
+        if (hex.HexType != HexType.Ocean)
+            return;
+
+        //Check again if this ship can be boarded
+        NavalUnit ship = gameMgr.CheckIfHexHasOurShipToBoard(hex);
+
+        if (ship != null)
+            BoardingShip(ship);
+    }
 }
