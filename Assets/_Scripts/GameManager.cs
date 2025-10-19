@@ -82,6 +82,14 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private int nativeTownNum;
+    
+    [SerializeField]
+    private LandUnitData[] landUnitData;
+    public LandUnitData[] LandUnitData { get { return landUnitData; } }
+
+    [SerializeField]
+    private NavalUnitData[] navalUnitData;
+    public NavalUnitData[] NavalUnitData { get { return navalUnitData; } }
 
 
     // SelectUnit
@@ -93,17 +101,14 @@ public class GameManager : MonoBehaviour
     private Unit curAiUnit;
     public Unit CurAiUnit { get { return curAiUnit; } set { curAiUnit = value; } }
     
-    [SerializeField]
-    private LandUnitData[] landUnitData;
-    public LandUnitData[] LandUnitData { get { return landUnitData; } }
-
-    [SerializeField]
-    private NavalUnitData[] navalUnitData;
-    public NavalUnitData[] NavalUnitData { get { return navalUnitData; } }
 
     [SerializeField]
     private Town curTown;
     public Town CurTown { get { return curTown; } set { curTown = value; } }
+    
+    [SerializeField]
+    private ProductData[] productData;
+    public ProductData[] ProductData { get { return productData; } }
 
     public static GameManager instance;
 

@@ -50,6 +50,10 @@ public class UIManager : MonoBehaviour
     {
         centerSlot.HexSlotInit(centerHex);
 
+        // setup auto Food production on CenterSlot
+        centerSlot.Hex.YieldID = 0; //Food
+        centerSlot.AdjustActualYieldAndAccumulate();
+        
         for (int i = 0; i < areaSlots.Length; i++)
         {
             areaSlots[i].HexSlotInit(aroundHexes[i]);
@@ -115,6 +119,7 @@ public class UIManager : MonoBehaviour
         if (show == false)
         {
             DestroyOldUnitDrag();
+            RemoveAllYieldIcons();
             HideUnitWorkInTown(GameManager.instance.CurTown.CurHex);
         }
         townPanel.SetActive(show);
@@ -125,6 +130,33 @@ public class UIManager : MonoBehaviour
         SetupHexSlots(curHex, aroundHexes);
         SetupUnitDragOutsideTown(curHex);
         SetupUnitDragWorkingInTerrain();
+        SetupYieldInTerrain();
     }
     
+    private void SetupYieldInTerrain()
+    {
+        foreach (TerrainSlot terrainSlot in areaSlots)
+        {
+            if (terrainSlot.Hex == null)
+                continue;
+
+            if (terrainSlot.Hex.Labor != null && terrainSlot.Hex.YieldID != -1)
+            {
+                terrainSlot.AdjustActualYieldAndAccumulate();
+            }
+        }
+    }
+    
+    public void RemoveAllYieldIcons()
+    {
+        centerSlot.RemoveYieldIcons();
+
+        foreach (TerrainSlot terrainSlot in areaSlots)
+        {
+            if (terrainSlot == null)
+                continue;
+
+            terrainSlot.RemoveYieldIcons();
+        }
+    }
 }
