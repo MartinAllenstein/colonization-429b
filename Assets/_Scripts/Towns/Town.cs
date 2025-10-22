@@ -39,8 +39,8 @@ public class Town : MonoBehaviour
     public int[] Warehouse { get { return warehouse; } set { warehouse = value; } }
 
     [SerializeField]
-    private int[] resourceThisTurn = new int[16]; //no. of all resource production this turn
-    public int[] ResourceThisTurn { get { return resourceThisTurn; } set { resourceThisTurn = value; } }
+    private int[] totalYieldThisTurn = new int[16]; //no. of all resource production this turn
+    public int[] TotalYieldThisTurn { get { return totalYieldThisTurn; } set { totalYieldThisTurn = value; } }
 
     [SerializeField]
     private int crossNum; //no. of crosses produced in this turn
