@@ -15,4 +15,4 @@ MonoBehaviour:
   id: 2
   productName: Tobacco
   icons:
-  - {fileID: 21300000, guid: e7355ba15a1cf4b45a0109a6f8ea65bd, type: 3}
+  - {fileID: 21300000, guid: d9cc6a223a714eb42a0cfe5b252bb6a4, type: 3}
