@@ -261,7 +261,7 @@ public class GameManager : MonoBehaviour
     
     public void SelectPlayerFaction()
     {
-        int i = 0; //England
+        int i = Settings.playerNationId;
         playerFaction = factions[i];
     }
     

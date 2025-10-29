@@ -103,7 +103,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &6161883176300429621
 Transform:
   m_ObjectHideFlags: 0
@@ -190,7 +190,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &998702609014821212
 Transform:
   m_ObjectHideFlags: 0
@@ -700,6 +700,10 @@ MonoBehaviour:
   specialHex: 0
   hexText: {fileID: 4464737312756506632}
   visible: 0
+  town: {fileID: 0}
+  unitsInHex: []
+  labor: {fileID: 0}
+  yieldId: -1
 --- !u!1 &8845327076218004062
 GameObject:
   m_ObjectHideFlags: 0
