@@ -57,4 +57,40 @@ public class Town : MonoBehaviour
         flagSprite.sprite = fact.FlagIcon;
         townSprite.sprite = fact.TownIcon;
     }
+    
+    public void AccumulateToWarehouse()
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            warehouse[i] += totalYieldThisTurn[i];
+        }
+    }
+    
+    private void OnMouseDown()
+    {
+        if (faction == gameManager.PlayerFaction)
+            gameManager.SetupCurrentTown(this);
+    }
+    
+    public void OnMouseOver()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            //Debug.Log($"To Move Hex:{curHex.X}, {curHex.Y}");
+            if (gameManager.CheckIfHexIsAdjacent(gameManager.CurUnit.CurHex, curHex))
+            {
+                if (faction == gameManager.PlayerFaction)//same side unit
+                {
+                    //Debug.Log("True");
+                    gameManager.CurUnit.PrepareMoveToHex(curHex);
+                }
+                else//diff side unit
+                {
+                    //Debug.Log($"{gameMgr.CurUnit} Attacks {townName}");
+                }
+            }
+        }
+    }
+
+
 }

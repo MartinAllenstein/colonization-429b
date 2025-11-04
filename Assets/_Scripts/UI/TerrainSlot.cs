@@ -128,24 +128,6 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
         return yieldObj;
     }
     
-    private void SetupParentSpacing(int n)
-    {
-        if (n <= 1)
-            return;
-
-        HorizontalLayoutGroup layout = yieldParent.GetComponent<HorizontalLayoutGroup>();
-        //100 is Icon width
-        //256 is Parent width
-        int totalWidth = 100 * n;
-        int excessWidth = totalWidth - 256;
-
-        if (excessWidth <= 0)
-            return;
-
-        int result = excessWidth / (n - 1);
-        layout.spacing = -result;
-    }
-    
     public void GenerateYieldIcons(int id)
     {
         yieldText.text = actualYield[id].ToString();
@@ -156,15 +138,18 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
             GameObject iconobj = GenerateYieldIcon(id);
             yieldIconList.Add(iconobj);
         }
-        SetupParentSpacing(actualYield[id]);
+        uiMgr.SetupParentSpacing(actualYield[id], yieldParent, 64, 250);
     }
     
-    public void AdjustActualYieldAndAccumulate()
+    public void AdjustActualYield()
     {
+        //Formula to Adjust NormalYield *
+        
+        //convert normal Yield to actual yield
+        
         ConvertNormalToActualYield(hex.YieldID);
 
         //accumulate actual yield to total production
-        gameMgr.CurTown.TotalYieldThisTurn[hex.YieldID] += actualYield[hex.YieldID];
 
         //generate all yield icons in one hex
         GenerateYieldIcons(hex.YieldID);
@@ -188,8 +173,6 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
         }
         yieldIconList.Clear();
         yieldText.gameObject.SetActive(false);
-
-        ReduceTownYield();
         
         if (hex.YieldID == 0)
             uiMgr.UpdateTotalFoodIcons();
@@ -223,7 +206,8 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
     public void SelectYield(int i)
     {
         hex.YieldID = i;
-        AdjustActualYieldAndAccumulate();
+        AdjustActualYield();
+        Accumulate();
     }
 
     public void ConvertNormalToActualYield(int id)
@@ -236,6 +220,11 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
 
         //convert normal Yield to actual yield
         actualYield[id] = normalYield[id];
+    }
+    
+    private void Accumulate()
+    {
+        gameMgr.CurTown.TotalYieldThisTurn[hex.YieldID] += actualYield[hex.YieldID];
     }
 
 }

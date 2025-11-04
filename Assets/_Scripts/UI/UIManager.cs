@@ -53,6 +53,12 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private List<GameObject> foodIconList = new List<GameObject>();
+    
+    [SerializeField]
+    private StockSlot[] stockSlots; //town's warehouse slot
+    
+    [SerializeField]
+    //private C
 
     
     public static UIManager instance;
@@ -78,8 +84,11 @@ public class UIManager : MonoBehaviour
         centerSlot.HexSlotInit(centerHex);
 
         // setup auto Food production on CenterSlot
-        centerSlot.Hex.YieldID = 0; //Food
-        centerSlot.AdjustActualYieldAndAccumulate();
+
+        if (centerSlot.Hex.YieldID == -1)
+            centerSlot.SelectYield(0); //Change to Food
+        else
+            centerSlot.AdjustActualYield(); //Already Food
         
         for (int i = 0; i < areaSlots.Length; i++)
         {
@@ -159,6 +168,7 @@ public class UIManager : MonoBehaviour
         SetupUnitDragWorkingInTerrain();
         SetupYieldInTerrain();
         UpdateTotalFoodIcons();
+        SetupStockSlots(curHex);
     }
     
     private void SetupYieldInTerrain()
@@ -170,7 +180,7 @@ public class UIManager : MonoBehaviour
 
             if (terrainSlot.Hex.Labor != null && terrainSlot.Hex.YieldID != -1)
             {
-                terrainSlot.AdjustActualYieldAndAccumulate();
+                terrainSlot.AdjustActualYield();
             }
         }
     }
@@ -237,16 +247,15 @@ public class UIManager : MonoBehaviour
             UpdateTotalFoodIcons();
     }
 
-    private void SetupParentSpacing(int n)
+    public void SetupParentSpacing(int n, Transform parent, int iconWidth, int parentWidth)
     {
         if (n <= 1)
             return;
 
-        HorizontalLayoutGroup layout = foodParent.GetComponent<HorizontalLayoutGroup>();
-        //100 is Icon width
-        //300 is Parent width
-        int totalWidth = 100 * n;
-        int excessWidth = totalWidth - 300;
+        HorizontalLayoutGroup layout = parent.GetComponent<HorizontalLayoutGroup>();
+        
+        int totalWidth = iconWidth * n;
+        int excessWidth = totalWidth - parentWidth;
 
         if (excessWidth <= 0)
             return;
@@ -280,8 +289,21 @@ public class UIManager : MonoBehaviour
             GameObject iconobj = GenerateFoodIcon();
             foodIconList.Add(iconobj);
         }
-        SetupParentSpacing(GameManager.instance.CurTown.TotalYieldThisTurn[0]);
+        SetupParentSpacing(GameManager.instance.CurTown.TotalYieldThisTurn[0], foodParent, 64, 300);
+    }
+    
+    public void CheckActiveUIPanel()
+    {
+        if (townPanel.activeInHierarchy)
+            ToggleTownPanel(false);
     }
 
+    public void SetupStockSlots(Hex hex)
+    {
+        for (int i = 0; i < stockSlots.Length; i++)
+        {
+            stockSlots[i].stockInit(i, hex.Town);
+        }
+    }
 
 }
