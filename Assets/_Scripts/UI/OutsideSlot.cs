@@ -5,22 +5,15 @@ public class OutsideSlot : MonoBehaviour, IDropHandler
 {
     [SerializeField]
     private Town town;
-    
-    void Start()
-    {
-        
-    }
 
-    
-    void Update()
-    {
-        
-    }
-    
     public void OnDrop(PointerEventData eventData)
     {
         GameObject unitObj = eventData.pointerDrag;
         UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+        
+        if (unitDrag == null)
+            return;
+        
         unitDrag.IconParent = transform;
 
         unitDrag.QuitOldTerrainSlot(); //old slot remove this labor

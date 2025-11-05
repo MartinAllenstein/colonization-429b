@@ -53,14 +53,29 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private List<GameObject> foodIconList = new List<GameObject>();
+
+    [SerializeField] 
+    private ShipInPort currentShipIcon; //current ship icon a player has selected
     
     [SerializeField]
     private StockSlot[] stockSlots; //town's warehouse slot
+
+    [SerializeField] 
+    private CargoSlot[] cargoSlots; //ship's cargo hold
     
     [SerializeField]
-    //private C
+    private GameObject shipInPortPrefab;
 
+    [SerializeField]
+    private GameObject portShipsParent;
+
+    [SerializeField] 
+    private GameObject stockDragPrefab; //icon dragged from town's stock
+    public GameObject StockDragPrefab { get { return stockDragPrefab; } }
     
+    [SerializeField]
+    private GameObject cargoDragPrefab; //icon dragged from ship's cargo
+
     public static UIManager instance;
 
     private void Awake()
@@ -169,6 +184,8 @@ public class UIManager : MonoBehaviour
         SetupYieldInTerrain();
         UpdateTotalFoodIcons();
         SetupStockSlots(curHex);
+        SetupShipsInPort(curHex);
+        SetupShipsCargoSlot(curHex);
     }
     
     private void SetupYieldInTerrain()
@@ -303,6 +320,91 @@ public class UIManager : MonoBehaviour
         for (int i = 0; i < stockSlots.Length; i++)
         {
             stockSlots[i].stockInit(i, hex.Town);
+        }
+    }
+    
+    private void SetupShipsInPort(Hex hex)
+    {
+        foreach (Unit unit in hex.UnitsInHex)
+        {
+            if (unit.UnitType == UnitType.Naval)
+            {
+                GameObject unitObj = Instantiate(shipInPortPrefab, portShipsParent.transform);
+                allUnitDrags.Add(unitObj);
+
+                ShipInPort shipIcon = unitObj.GetComponent<ShipInPort>();
+                shipIcon.UnitInit((NavalUnit)unit);
+            }
+        }
+        
+    }
+    
+    public void SetupCargoSlot(NavalUnit ship)
+    {
+        for (int i = 0; i < cargoSlots.Length; i++)
+        {
+            if (i < ship.CargoHoldNum)
+            {
+                cargoSlots[i].gameObject.SetActive(true);
+                cargoSlots[i].SlotInit(ship, i);
+            }
+            else
+                cargoSlots[i].gameObject.SetActive(false);
+        }
+    }
+
+
+    private void SetupShipsCargoSlot(Hex hex)
+    {
+        foreach (Unit unit in hex.UnitsInHex)
+        {
+            if (unit.UnitType == UnitType.Naval)
+            {
+                //first ship
+                NavalUnit firstShip = unit.gameObject.GetComponent<NavalUnit>();
+                SetupCargoSlot(firstShip);
+
+                break;
+            }
+        }
+    }
+    
+    public void ToggleStockDragRaycast(bool flag)
+    {
+        foreach (StockSlot slot in stockSlots)
+        {
+            slot.ToggleRayCastStockDrag(flag);
+        }
+    }
+
+    private void DeleteAllCargoDragsInSlots()
+    {
+        foreach (CargoSlot slot in cargoSlots)
+        {
+            if (slot.CargoDrag != null)
+            {
+                Destroy(slot.CargoDrag.gameObject);
+                slot.CargoDrag = null;
+            }
+        }
+    }
+    
+    public void UpdateCargoSlots(NavalUnit ship) //Update icon in ship's hold
+    {
+        DeleteAllCargoDragsInSlots();
+
+        for (int i = 0; i < ship.CargoList.Count; i++)
+        {
+            GameObject cargoDragObj =
+                Instantiate(cargoDragPrefab, cargoSlots[i].transform.position, Quaternion.identity, cargoSlots[i].transform);
+
+            CargoDrag cargoDrag = cargoDragObj.GetComponent<CargoDrag>();
+            cargoSlots[i].CargoDrag = cargoDrag;
+
+            int productId = ship.CargoList[i].ProductID;
+            Sprite icon = GameManager.instance.ProductData[productId].icons[0];
+
+            cargoDrag.CargoDragInit(ship, icon, i);
         }
     }
 

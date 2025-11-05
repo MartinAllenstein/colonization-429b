@@ -102,6 +102,15 @@ public class Unit : MonoBehaviour
         {
             MoveToHex();
         }
+        
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            if (this == gameMgr.CurUnit && curHex.Town)
+            {
+                if (curHex.Town != null)
+                    gameMgr.SetupCurrentTown(curHex.Town);
+            }
+        }
     }
     
     private void OnMouseDown()

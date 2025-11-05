@@ -33,6 +33,10 @@ public class NavalUnit : Unit
     [SerializeField]
     private GameObject passengerParent;
     public GameObject PassengerParent { get { return passengerParent; } }
+    
+    [SerializeField]
+    private List<Cargo> cargoList = new List<Cargo>();
+    public List<Cargo> CargoList { get { return cargoList; } set { cargoList = value; } }
 
 
     public void UnitInit(GameManager gameMgr, Faction fact, NavalUnitData data)
@@ -57,9 +61,16 @@ public class NavalUnit : Unit
     {
         base.PrepareMoveToHex(targetHex);
 
-        if (targetHex.HexType != HexType.Ocean)
+        if (targetHex.HexType != HexType.Ocean) //Land Hex
         {
-            StayOnHex(curHex);
+            if (targetHex.HasTown) //If has town
+            {
+                //not our town
+                if (targetHex.Town.Faction != gameMgr.PlayerFaction)
+                    StayOnHex(curHex);
+            }
+            else //No town
+                StayOnHex(curHex);
         }
     }
     
@@ -77,5 +88,32 @@ public class NavalUnit : Unit
             passenger.CurHex = hex;
             passenger.CurPos = hex.Pos;
         }
+    }
+
+    public int AddCargo(int id, Cargo newCargo)
+    {
+        //Debug.Log($"i:{id}, count:{cargoList.Count}");
+
+        if (cargoList.Count < cargoHoldNum) //a space left
+        {
+            cargoList.Add(new Cargo(newCargo.ProductID, newCargo.Quantity));
+            return 0;
+        }
+        //all cargo taken, check if there is space
+        else if (cargoList[id].ProductID == newCargo.ProductID)
+        {
+            cargoList[id].Quantity += newCargo.Quantity;
+            newCargo.Quantity = 0;
+
+            if (cargoList[id].Quantity > 100)
+            {
+                int cargoLeft = cargoList[id].Quantity - 100;
+                cargoList[id].Quantity = 100;
+                return cargoLeft;
+            }
+        }
+
+        //Debug.Log("Added Cargo");
+        return newCargo.Quantity;
     }
 }

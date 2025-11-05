@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class StockSlot : MonoBehaviour
+public class StockSlot : MonoBehaviour, IDropHandler
 {
     [SerializeField]
     private Town town;
@@ -22,6 +23,9 @@ public class StockSlot : MonoBehaviour
     [SerializeField]
     private Image image;
     public Image Image { get { return image; } }
+    
+    [SerializeField]
+    private StockDrag stockDrag;
 
     [SerializeField]
     private UIManager uiMgr;
@@ -32,16 +36,6 @@ public class StockSlot : MonoBehaviour
         uiMgr = UIManager.instance;
     }
 
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-
     public void stockInit(int i, Town t)
     {
         //Debug.Log($"stock Init:{i}");
@@ -50,15 +44,18 @@ public class StockSlot : MonoBehaviour
         productId = i;
         quantity = town.Warehouse[productId];
         stockText.text = quantity.ToString();
-    }
 
+        if (stockDrag == null)
+        {
+            stockDrag = GenerateStockDrag(productId, this);
+        }
+    }
 
     public void UpdateStockText()
     {
         stockText.text = town.Warehouse[productId].ToString();
     }
-
-
+    
     public void UpdateQuantityStock(int n)
     {
         town.Warehouse[productId] += n;
@@ -66,6 +63,46 @@ public class StockSlot : MonoBehaviour
         stockText.text = quantity.ToString();
     }
 
+    public StockDrag GenerateStockDrag(int id, StockSlot slot)
+    {
+        //Debug.Log($"Generate Cargo Init:{id}");
+
+        GameObject stockDragObj =
+            Instantiate(uiMgr.StockDragPrefab, slot.Image.transform.position, Quaternion.identity, slot.transform);
+
+        StockDrag stockDrag = stockDragObj.GetComponent<StockDrag>();
+        stockDrag.StockDragInit(slot);
+
+        return stockDrag;
+    }
+    
+    public void ToggleRayCastStockDrag(bool flag)
+    {
+        if (stockDrag != null)
+            stockDrag.Image.raycastTarget = flag;
+    }
+    
+    public void OnDrop(PointerEventData eventData)
+    {
+        GameObject obj = eventData.pointerDrag;
+        CargoDrag cargoDrag = obj.GetComponent<CargoDrag>();
+
+        if (cargoDrag == null)
+            return;
+
+        if (cargoDrag.Cargo.ProductID != productId)
+            return;
+
+        UpdateQuantityStock(cargoDrag.Cargo.Quantity);
+
+        cargoDrag.RemoveCargoListFromShip();
+        uiMgr.UpdateCargoSlots(cargoDrag.Ship);
+
+        Debug.Log("CargoDrag - On Drop - on StockSlot");
+        uiMgr.ToggleStockDragRaycast(true);
+
+        Destroy(obj);
+    }
 
     
 }
