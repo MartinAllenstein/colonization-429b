@@ -109,6 +109,10 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private ProductData[] productData;
     public ProductData[] ProductData { get { return productData; } }
+    
+    [SerializeField]
+    private int year = 1600;
+    public int Year { get { return year; } set { year = value; } }
 
     public static GameManager instance;
 
@@ -141,6 +145,9 @@ public class GameManager : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.Backspace))
             Endturn();
+        
+        if (Input.GetKeyDown(KeyCode.E))
+            EuropePanel();
     }
     
     
@@ -622,6 +629,11 @@ public class GameManager : MonoBehaviour
                     other.gameObject.SetActive(false);
             }
         }
+    }
+    
+    public void EuropePanel()
+    {
+        //UIManager.instance.CheckEuropePanel();
     }
 
 }

@@ -75,12 +75,60 @@ public class UIManager : MonoBehaviour
     
     [SerializeField]
     private GameObject cargoDragPrefab; //icon dragged from ship's cargo
+    
+    //Europe//
+    [SerializeField]
+    private TMP_Text moneyText;
+
+    [SerializeField]
+    private TMP_Text moneyEuropeText;
+
+    [Header("Europe")]
+    [SerializeField]
+    private GameObject europePanel;
+
+    [SerializeField]
+    private GameObject toEuropeShipsParent;
+
+    [SerializeField]
+    private GameObject fromEuropeShipsParent;
+
+    [SerializeField]
+    private List<GameObject> allShipToEuropeIcons;
+
+    [SerializeField]
+    private List<GameObject> allShipFromEuropeIcons;
+
+    [SerializeField]
+    private List<GameObject> allShipInEuropeIcons;
+    public List<GameObject> AllShipInEuropeIcons { get { return allShipInEuropeIcons; } }
+
+    [SerializeField]
+    private GameObject europePortShipsParent;
+
+    [SerializeField]
+    private CargoSlot[] cargoSlotsEurope; //ship's cargo hold (Europe)
+    public CargoSlot[] CargoSlotsEurope { get { return cargoSlotsEurope; } }
+
+    [SerializeField]
+    private StockSlot[] stockSlotsEurope; //Europe's port slot
+
+    [SerializeField]
+    private bool inEurope;
+    public bool InEurope { get { return inEurope; } }
+
+    [SerializeField]
+    private GameObject shipDragPrefab; //ship icon drag
+    public GameObject ShipDragPrefab { get { return shipDragPrefab; } }
 
     public static UIManager instance;
 
     private void Awake()
     {
         instance = this;
+        
+        townPanel.gameObject.SetActive(false);
+        europePanel.gameObject.SetActive(false);
     }
 
     void Start()
@@ -313,6 +361,8 @@ public class UIManager : MonoBehaviour
     {
         if (townPanel.activeInHierarchy)
             ToggleTownPanel(false);
+        if (europePanel.activeInHierarchy)
+            ToggleEuropePanel(false);
     }
 
     public void SetupStockSlots(Hex hex)
@@ -405,6 +455,21 @@ public class UIManager : MonoBehaviour
             Sprite icon = GameManager.instance.ProductData[productId].icons[0];
 
             cargoDrag.CargoDragInit(ship, icon, i);
+        }
+    }
+    
+    public void ToggleEuropePanel(bool flag)
+    {
+        if (flag == false)
+        {
+            europePanel.SetActive(false);
+            inEurope = false;
+        }
+        else
+        {
+            townPanel.SetActive(false);
+            europePanel.SetActive(true);
+            inEurope = true;
         }
     }
 
