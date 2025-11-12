@@ -78,16 +78,17 @@ public class NavalUnit : Unit
     {
         base.StayOnHex(hex);
 
-        foreach (LandUnit passenger in passengers)
+        foreach (LandUnit unit in passengers)
         {
             //Remove passenger from old ocean hex
-            passenger.CurHex.UnitsInHex.Remove(passenger);
+            unit.CurHex.UnitsInHex.Remove(unit);
             //Add passenger to new ocean hex
-            hex.UnitsInHex.Add(passenger);
+            hex.UnitsInHex.Add(unit);
             
-            passenger.CurHex = hex;
-            passenger.CurPos = hex.Pos;
+            unit.CurHex = hex;
+            unit.CurPos = hex.Pos;
         }
+        gameMgr.CheckShipToEurope();
     }
 
     public int AddCargo(int id, Cargo newCargo)

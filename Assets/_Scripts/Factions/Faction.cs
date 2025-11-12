@@ -61,6 +61,10 @@ public class Faction : MonoBehaviour
     private List<Unit> units = new List<Unit>();
     public List<Unit> Units { get { return units; } set { units = value; } }
     
+    [SerializeField]
+    private int money = 1000;
+    public int Money { get { return money; } set { money = value; } }
+    
     void Start()
     {
         

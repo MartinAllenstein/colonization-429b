@@ -24,7 +24,7 @@ public class DialogManager : MonoBehaviour
     public void YesGoToEurope()
     {
         dialogs[0].gameObject.SetActive(false);
-        //EuropeManager.instance.AllowToGoToEurope();
+        EuropeManager.instance.AllowToGoToEurope();
     }
 
     public void NoGoToEurope()

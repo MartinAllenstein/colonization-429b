@@ -16,3 +16,5 @@ MonoBehaviour:
   productName: IronOres
   icons:
   - {fileID: 21300000, guid: cb5ad232a7c925443b2b20c9e5d6fd1c, type: 3}
+  startBid: 10
+  startAsk: 11

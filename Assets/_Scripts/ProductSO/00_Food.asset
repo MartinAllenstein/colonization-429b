@@ -17,3 +17,5 @@ MonoBehaviour:
   icons:
   - {fileID: 21300000, guid: 6449b28842aae9a43a81ed4682d57079, type: 3}
   - {fileID: 21300000, guid: d7cada27f7483394ab1d2bf343565040, type: 3}
+  startBid: 2
+  startAsk: 8

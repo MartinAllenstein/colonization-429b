@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   advisorSprite: {fileID: 0}
   dialogSprite: {fileID: 0}
-  question: ' We have reached the high seas, Your Excellency. Shall we sail for Europe?'
+  question: We have reached the high seas, Your Excellency. Shall we sail for Europe?
   answers:
   - Yes, steady as she goes.
   - No, let us remain in these waters.
