@@ -591,7 +591,7 @@ public class UIManager : MonoBehaviour
 
     public void UpdateMoneyEuropeText()
     {
-        moneyEuropeText.text = $"{GameManager.instance.PlayerFaction.Money}";
+        moneyEuropeText.text = $"Gold: {GameManager.instance.PlayerFaction.Money}";
     }
     
     private void SetupShipsFromEurope(List<ShipInTransit> shipsToEU)
