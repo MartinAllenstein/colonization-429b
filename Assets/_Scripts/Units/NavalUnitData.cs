@@ -11,6 +11,7 @@ public class NavalUnitData : ScriptableObject
     public Sprite shipIcon;
     public bool armed;
     public int cargoHoldNum;
+    public int price;
     
     
 }

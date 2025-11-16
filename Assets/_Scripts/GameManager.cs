@@ -328,8 +328,7 @@ public class GameManager : MonoBehaviour
 
 
     public void ClearDarkFogAroundUnit(Unit unit)
-    {
-        unit.CurHex.DiscoverHex();
+    { unit.CurHex.DiscoverHex();
 
         List<Hex> adjHexes = HexCalculator.GetHexAround(allHexes, unit.CurHex);
 
@@ -717,6 +716,19 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // Purchase New Ship //
+    public NavalUnit CreateNewShipForEurope(NavalUnitData data)
+    {
+        GameObject obj = Instantiate(navalUnitPrefab, transform.position, Quaternion.identity, playerFaction.UnitParent);
+        NavalUnit ship = obj.GetComponent<NavalUnit>();
 
+        ship.UnitInit(this, playerFaction, data);
+    
+        obj.SetActive(false);
+    
+        playerFaction.Units.Add(ship);
+
+        return ship;
+    }
     
 }

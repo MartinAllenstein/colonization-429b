@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 608610248d63f6648afea48aa7fd790f
+guid: 34a8c2618477f1849b8cb07b9984d560
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4531520878924310585
-    second: 02_Pueblo-peoples_0
+      213: -7134587449127609364
+    second: Mainmenu-BG_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,8 +49,8 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
-  alignment: 9
-  spritePivot: {x: 0.5, y: 0.34}
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 02_Pueblo-peoples_0
+      name: Mainmenu-BG_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 58
-        width: 256
-        height: 168
+        y: 0
+        width: 1920
+        height: 1080
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 938ac88fa3233ee30800000000000000
-      internalID: 4531520878924310585
+      spriteID: cebd9c3048adcfc90800000000000000
+      internalID: -7134587449127609364
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      02_Pueblo-peoples_0: 4531520878924310585
+      Mainmenu-BG_0: -7134587449127609364
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

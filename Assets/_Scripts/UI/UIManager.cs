@@ -125,6 +125,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject shipDragPrefab; //ship icon drag
     public GameObject ShipDragPrefab { get { return shipDragPrefab; } }
+    
+    [Header("Europe Purchasing")]
+    [SerializeField]
+    private GameObject shipPurchasePanel;
+
+    [SerializeField]
+    private TMP_Text[] shipPurchaseButtonTexts;
 
     public static UIManager instance;
 
@@ -472,6 +479,8 @@ public class UIManager : MonoBehaviour
         {
             DestroyAllShipsEuropeIcons();
             DisableAllCargoSlots(cargoSlotsEurope);
+
+            shipPurchasePanel.SetActive(false);
             
             europePanel.SetActive(false);
             inEurope = false;
@@ -586,7 +595,7 @@ public class UIManager : MonoBehaviour
     
     public void UpdateMoneyText()
     {
-        moneyText.text = $"{GameManager.instance.PlayerFaction.Money}";
+        moneyText.text = $"Gold: {GameManager.instance.PlayerFaction.Money}";
     }
 
     public void UpdateMoneyEuropeText()
@@ -619,6 +628,37 @@ public class UIManager : MonoBehaviour
         DisableAllCargoSlots(cargoSlotsEurope);
         SetupShipsCargoSlotEurope(EuropeManager.instance.ShipsInEurope);
     }
+    
+    // Purchase Ship //
+    public void ToggleShipPurchasePanel(bool show)
+    {
+        if (show)
+        {
+            UpdateShipPurchaseButtons(); 
+        }
+        
+        if (shipPurchasePanel != null)
+            shipPurchasePanel.SetActive(show);
+    }
+    
+    private void UpdateShipPurchaseButtons()
+    {
+        NavalUnitData[] shipsToBuy = EuropeManager.instance.PurchasableShips;
 
+        for (int i = 0; i < shipPurchaseButtonTexts.Length; i++)
+        {
+            if (i < shipsToBuy.Length && shipsToBuy[i] != null)
+            {
+                NavalUnitData shipData = shipsToBuy[i];
 
+                shipPurchaseButtonTexts[i].text = $"Cost: {shipData.price}G";
+
+                shipPurchaseButtonTexts[i].transform.parent.gameObject.SetActive(true); 
+            }
+            else
+            {
+                shipPurchaseButtonTexts[i].transform.parent.gameObject.SetActive(false);
+            }
+        }
+    }
 }
