@@ -132,6 +132,14 @@ public class UIManager : MonoBehaviour
 
     [SerializeField]
     private TMP_Text[] shipPurchaseButtonTexts;
+    
+    [Header("Unit Action Panel")]
+    [SerializeField]
+    private GameObject unitActionPanel;
+    [SerializeField]
+    private Button boardShipButton;
+    
+    private UnitDrag currentActionUnitDrag;
 
     public static UIManager instance;
 
@@ -660,5 +668,52 @@ public class UIManager : MonoBehaviour
                 shipPurchaseButtonTexts[i].transform.parent.gameObject.SetActive(false);
             }
         }
+    }
+    
+    public void ToggleUnitActionPanel(bool show)
+    {
+        if (unitActionPanel == null) return;
+
+        unitActionPanel.SetActive(show);
+
+        if (show)
+        {
+            if (currentActionUnitDrag != null)
+            {
+                LandUnit unit = currentActionUnitDrag.LandUnit;
+                NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex);
+                
+                if (boardShipButton != null)
+                    boardShipButton.gameObject.SetActive(ship != null);
+            }
+        }
+        else
+        {
+            currentActionUnitDrag = null; 
+        }
+    }
+
+    public void SelectUnitForAction(UnitDrag unitDrag)
+    {
+        currentActionUnitDrag = unitDrag;
+        ToggleUnitActionPanel(true);
+    }
+    
+    public void OnClick_BoardShip()
+    {
+        if (currentActionUnitDrag != null)
+        {
+            LandUnit unit = currentActionUnitDrag.LandUnit;
+            NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex);
+
+            if (ship != null)
+            {
+                unit.BoardingShip(ship);
+                
+                allUnitDrags.Remove(currentActionUnitDrag.gameObject);
+                Destroy(currentActionUnitDrag.gameObject);
+            }
+        }
+        ToggleUnitActionPanel(false);
     }
 }

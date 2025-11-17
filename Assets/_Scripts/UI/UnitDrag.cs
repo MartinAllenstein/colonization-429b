@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
 {
     [SerializeField]
     private Image unitImage;
@@ -76,4 +76,9 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
         this.terrainSlot = terrainSlot;
     }
 
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log("Click at Unit");
+        UIManager.instance.SelectUnitForAction(this);
+    }
 }
