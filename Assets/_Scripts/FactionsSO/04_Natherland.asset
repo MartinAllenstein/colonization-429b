@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad27a2db39690264fbf1db1a81901828, type: 3}
-  m_Name: Apache
+  m_Name: 04_Natherland
   m_EditorClassIdentifier: 
-  nation: 2
+  nation: 3
   isEuropean: 1
-  flagIcon: {fileID: 21300000, guid: 5fdd9b40a1e76ce4fb72bc44a68ec27c, type: 3}
-  shieldIcon: {fileID: 21300000, guid: 47f5edac5184433449c7ef408ac3cd72, type: 3}
+  flagIcon: {fileID: 21300000, guid: b8f79c2d55171fd4d9a118c48719c85f, type: 3}
+  shieldIcon: {fileID: 21300000, guid: b0515539bb78e6141aabfd2df8135275, type: 3}
   unitIcon: {fileID: 0}
-  townIcon: {fileID: 21300000, guid: 651ce04b37cad6846a0eb4b29f06ab44, type: 3}
+  townIcon: {fileID: 21300000, guid: 3aa581d75bb4da44e81a05c77d4f199e, type: 3}
+  leaderSprite: {fileID: 21300000, guid: 4a14d3e7e30dce94b9f52228f8000fcb, type: 3}

@@ -53,9 +53,10 @@ public class LandUnit : Unit
     public NavalUnit TransportShip { get { return transportShip; } set { transportShip = value; } }
     
     
-    public void UnitInit(GameManager gameMgr, Faction fact, LandUnitData data)
+    public void UnitInit(GameManager gameMgr,UIManager uiMgr, Faction fact, LandUnitData data)
     {
         base.gameMgr = gameMgr;
+        base.uiMgr = uiMgr;
         faction = fact;
         flagSprite.sprite = fact.ShieldIcon;
 
@@ -117,6 +118,9 @@ public class LandUnit : Unit
     
     public void ClearingLand()
     {
+        if(landUnitType != LandUnitType.HardyPioneers)
+            return;
+        
         if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HexType == HexType.Hills || !curHex.HasForest)
         {
             //warning has to be cleared land
@@ -126,6 +130,7 @@ public class LandUnit : Unit
         {
             //warning not enough tools
             Debug.Log("Not enough tools");
+            uiMgr.ShowColonyNotEnoughToolsText(toolsNum);
         }
         else
         {
@@ -136,17 +141,27 @@ public class LandUnit : Unit
     
     public void BuildSettlement()
     {
+        if (landUnitType != LandUnitType.HardyPioneers)
+            return;
+        
         Debug.Log("Build Settlement");
 
         if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HasForest)
         {
             //warning has to be cleared land
             Debug.Log("Must be on Cleared Land");
+            uiMgr.ShowColonyClearLandText();
         }
         else if (toolsNum < 20)
         {
             //warning not enough tools
             Debug.Log("Not enough tools");
+            uiMgr.ShowColonyNotEnoughToolsText(toolsNum);
+        }
+        else if (gameMgr.CheckIfAroundHexHasTown(curHex))
+        {
+            Debug.Log("Must not be next to another town or village");
+            uiMgr.ShowColonyHasOtherTownAroundText();
         }
         else
         {
@@ -196,5 +211,8 @@ public class LandUnit : Unit
 
         if (ship != null)
             BoardingShip(ship);
+        
+        if (faction == gameMgr.PlayerFaction)
+            gameMgr.CheckUnmetFaction(this);
     }
 }

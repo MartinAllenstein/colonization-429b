@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -113,6 +114,16 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private int year = 1600;
     public int Year { get { return year; } set { year = value; } }
+    
+    [SerializeField]
+    private Unit winner;
+
+    [SerializeField]
+    private Unit loser;
+    
+    [SerializeField]
+    private Faction curForeignFaction; //cur Faction that player's meeting
+    public Faction CurForeignFaction { get { return curForeignFaction; } set { curForeignFaction = value; } }
 
     public static GameManager instance;
 
@@ -133,6 +144,8 @@ public class GameManager : MonoBehaviour
         GenerateAllEuropeanExplorerUnits();
         GenerateAllNativeTowns();
         GenerateAllNativeUnits();
+
+        ShowFirstKingDialogText();
     }
 
     void Update()
@@ -403,7 +416,7 @@ public class GameManager : MonoBehaviour
         GameObject obj = Instantiate(landUnitPrefab, hex.Pos, Quaternion.identity, ship.PassengerParent.transform);
         LandUnit unit = obj.GetComponent<LandUnit>();
 
-        unit.UnitInit(this, faction, landUnitData[unitId]);
+        unit.UnitInit(this,UIManager.instance,  faction, landUnitData[unitId]);
         unit.SetupPosition(hex);
 
         unit.UnitStatus = UnitStatus.OnBoard;
@@ -496,7 +509,7 @@ public class GameManager : MonoBehaviour
         GameObject obj = Instantiate(landUnitPrefab, hex.Pos, Quaternion.identity, faction.UnitParent);
         LandUnit unit = obj.GetComponent<LandUnit>();
 
-        unit.UnitInit(this, faction, landUnitData[unitId]);
+        unit.UnitInit(this, UIManager.instance, faction, landUnitData[unitId]);
         unit.SetupPosition(hex);
         unit.ShowHideSprite(show);
 
@@ -677,6 +690,7 @@ public class GameManager : MonoBehaviour
         ship.Visible = true;
     }
     
+    // New //
     private void GenerateAllEuropeanShips()
     {
         int interval = HEIGHT / 5;
@@ -729,6 +743,118 @@ public class GameManager : MonoBehaviour
         playerFaction.Units.Add(ship);
 
         return ship;
+    }
+    
+    private IEnumerator ShowCasualtyReportWait(float seconds)
+    {
+        //attacking animation
+        yield return new WaitForSeconds(seconds);
+        Debug.Log("Show Combat Dialog");
+        DialogManager.instance.ToggleCombatPanel(true);
+    }
+
+    private void CalculateCombatLogic(Unit ourUnit, Unit enemyUnit)
+    {
+        if (ourUnit.Strength > enemyUnit.Strength)
+        {
+            winner = ourUnit;
+            loser = enemyUnit;
+        }
+        else if (ourUnit.Strength < enemyUnit.Strength)
+        {
+            winner = enemyUnit;
+            loser = ourUnit;
+        }
+        else//draw
+        {
+            int n = Random.Range(0, 2);
+
+            if (n == 0)
+            {
+                winner = ourUnit;
+                loser = enemyUnit;
+            }
+            else
+            {
+                winner = enemyUnit;
+                loser = ourUnit;
+            }
+        }
+    }
+
+    public void SetupDeadUnit(Unit deadUnit)
+    {
+        Faction faction = deadUnit.Faction;
+        Hex hex = deadUnit.CurHex;
+
+        if (deadUnit.UnitType == UnitType.Naval)
+        {
+            NavalUnit ship = (NavalUnit)deadUnit;
+
+            foreach (LandUnit passenger in ship.Passengers)
+            {
+                if (hex.UnitsInHex.Contains(passenger))
+                    hex.UnitsInHex.Remove(passenger);
+
+                faction.Units.Remove(passenger);
+                Destroy(passenger.gameObject);
+            }
+        }
+
+        if (hex.UnitsInHex.Contains(deadUnit))
+            hex.UnitsInHex.Remove(deadUnit);
+
+        faction.Units.Remove(deadUnit);
+        Destroy(deadUnit.gameObject);
+    }
+
+    private IEnumerator ShowUnitDies(float seconds, Unit winner, Unit loser)
+    {
+        yield return new WaitForSeconds(seconds);
+        Debug.Log("Hide Combat Dialog");
+        DialogManager.instance.ToggleCombatPanel(false);
+        
+        //loser dies animation
+        Debug.Log("Animation");
+        
+        SetupDeadUnit(loser);
+        ShowMilitaryResultDialog();
+    }
+
+    private void ShowMilitaryResultDialog()
+    {
+        DialogManager.instance.ShowCombatResult(winner, loser);
+    }
+
+    public void StartCombat(Unit attacker, Unit defender)
+    {
+        DialogManager.instance.CombatAnalysisInit(attacker, defender);
+        StartCoroutine(ShowCasualtyReportWait(0.5f));
+
+        CalculateCombatLogic(attacker, defender);
+
+        StartCoroutine(ShowUnitDies(4f, winner, loser));
+    }
+    
+    public void ShowFirstKingDialogText()
+    {
+        DialogManager.instance.ShowFirstKingQuestDialogText();
+    }
+    
+    public bool CheckIfAroundHexHasTown(Hex hex)
+    {
+        return HexCalculator.CheckIfHexAroundHasTown(allHexes, hex);
+    }
+    
+    public void CheckUnmetFaction(Unit unit)
+    {
+        Faction faction = HexCalculator.CheckNeverMetFaction(allHexes, unit);
+
+        if (faction != null)
+        {
+            curForeignFaction = faction;
+            DialogManager.instance.ToggleForeignDialog(true);
+        }
     }
     
 }

@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ad27a2db39690264fbf1db1a81901828, type: 3}
-  m_Name: Spain
+  m_Name: 02_France
   m_EditorClassIdentifier: 
-  nation: 2
+  nation: 1
   isEuropean: 1
-  flagIcon: {fileID: 21300000, guid: 5fdd9b40a1e76ce4fb72bc44a68ec27c, type: 3}
-  shieldIcon: {fileID: 21300000, guid: 47f5edac5184433449c7ef408ac3cd72, type: 3}
+  flagIcon: {fileID: 21300000, guid: ca50055e0f42e724c850b57b40341526, type: 3}
+  shieldIcon: {fileID: 21300000, guid: 72223a6d43aaad1429a74b09ff528ade, type: 3}
   unitIcon: {fileID: 0}
-  townIcon: {fileID: 21300000, guid: 3aa581d75bb4da44e81a05c77d4f199e, type: 3}
+  townIcon: {fileID: 21300000, guid: e86b35eaaa071b442b25814e45d9e72f, type: 3}
+  leaderSprite: {fileID: 21300000, guid: 5118a770104dba046a2fabcb952f07d4, type: 3}

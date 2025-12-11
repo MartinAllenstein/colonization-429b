@@ -35,7 +35,7 @@ public class Unit : MonoBehaviour
 
     [SerializeField]
     protected int strength;
-    public int Strenght { get { return strength; } set { strength = value; } }
+    public int Strength { get { return strength; } set { strength = value; } }
 
     [SerializeField]
     protected int movePoint;
@@ -85,9 +85,18 @@ public class Unit : MonoBehaviour
     [Header("Border")]
     [SerializeField]
     protected SpriteRenderer borderSprite;
+    
+    [SerializeField]
+    protected Unit targetUnit;
+    public Unit TargetUnit { get { return targetUnit; } set { targetUnit = value; } }
+    
+    
 
     [SerializeField]
     protected GameManager gameMgr;
+    
+    [SerializeField]
+    protected UIManager uiMgr;
     
     
     public void SetupPosition(Hex hex)
@@ -214,11 +223,34 @@ public class Unit : MonoBehaviour
                 if (faction == gameMgr.PlayerFaction)//same side unit
                     gameMgr.CurUnit.PrepareMoveToHex(curHex);
                 else//diff side unit
+                {
                     Debug.Log($"{gameMgr.CurUnit} Attacks {unitName}");
+                    if (curHex.MoveCost > movePoint)
+                        return;
+                    gameMgr.CurUnit.AttackUnit(curHex, this);
+                }
             }
         }
     }
 
+    public void AttackUnit(Hex target, Unit defender) //Begin to Attack
+    {
+        //Debug.Log($"MoveCost-{target.MoveCost}");
+        //Debug.Log($"UnitMovementP-{movePoint}");
+        //Debug.Log("Attack");
+
+        if (target.MoveCost > movePoint)
+            return;
+
+        //isMoving = true;
+        targetHex = target;
+        targetUnit = defender;
+        //Debug.Log($"Target Pos:{targetHex.transform.position.x},{targetHex.transform.position.y}");
+
+        //Attack Animation
+
+        gameMgr.StartCombat(this, defender);
+    }
 
     
 }
