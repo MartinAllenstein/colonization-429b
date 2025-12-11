@@ -15,7 +15,9 @@ public enum UnitStatus
     Clearing,
     Building,
     WorkInField,
-    WorkInTown
+    WorkInTown,
+    Hidden,
+    ToBoard
 }
 
 public class Unit : MonoBehaviour

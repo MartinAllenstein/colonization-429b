@@ -7,6 +7,8 @@ public class ShipInPort : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     private Image unitImage;
+    
+    private Shadow selectionShadow;
 
     [SerializeField]
     private NavalUnit navalUnit;
@@ -25,11 +27,24 @@ public class ShipInPort : MonoBehaviour, IPointerClickHandler
     void Awake()
     {
         uiMgr = UIManager.instance;
+        
+        selectionShadow = GetComponent<Shadow>();
+        SetSelected(false);
+        
     }
     
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log("Click at ship");
+        
+        SetSelected(true);
+        
+        if (uiMgr.InEurope)
+            uiMgr.SetupSelectedShipsCargoSlotEurope(navalUnit);
+        else
+        {
+            uiMgr.SetupSelectedShipsCargoSlot(navalUnit);
+        }
     }
 
 
@@ -62,5 +77,13 @@ public class ShipInPort : MonoBehaviour, IPointerClickHandler
         return shipDrag;
     }
 
+    //Shadow//
+    public void SetSelected(bool isSelected)
+    {
+        if (selectionShadow != null)
+        {
+            selectionShadow.enabled = isSelected;
+        }
+    }
 
 }

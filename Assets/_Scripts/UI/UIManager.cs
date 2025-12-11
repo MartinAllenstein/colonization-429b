@@ -126,18 +126,15 @@ public class UIManager : MonoBehaviour
     private GameObject shipDragPrefab; //ship icon drag
     public GameObject ShipDragPrefab { get { return shipDragPrefab; } }
     
-    [Header("Europe Purchasing")]
-    [SerializeField]
-    private GameObject shipPurchasePanel;
-
-    [SerializeField]
-    private TMP_Text[] shipPurchaseButtonTexts;
-    
     [Header("Unit Action Panel")]
     [SerializeField]
     private GameObject unitActionPanel;
     [SerializeField]
     private Button boardShipButton;
+    
+    [SerializeField]
+    private GameObject purchaseShipPanel;
+    public GameObject PurchaseShipPanel { get { return purchaseShipPanel; } }
     
     private UnitDrag currentActionUnitDrag;
 
@@ -434,6 +431,9 @@ public class UIManager : MonoBehaviour
             {
                 //first ship
                 NavalUnit firstShip = unit.gameObject.GetComponent<NavalUnit>();
+                
+                UpdateShipSelectionVisuals(allShipIcons, firstShip);
+                
                 SetupCargoSlot(firstShip, cargoSlots);
                 UpdateCargoSlots(firstShip, cargoSlots);
 
@@ -487,8 +487,6 @@ public class UIManager : MonoBehaviour
         {
             DestroyAllShipsEuropeIcons();
             DisableAllCargoSlots(cargoSlotsEurope);
-
-            shipPurchasePanel.SetActive(false);
             
             europePanel.SetActive(false);
             inEurope = false;
@@ -568,6 +566,9 @@ public class UIManager : MonoBehaviour
             {
                 //first ship
                 NavalUnit firstShip = unit.gameObject.GetComponent<NavalUnit>();
+                
+                UpdateShipSelectionVisuals(allShipInEuropeIcons, firstShip);
+                
                 SetupCargoSlot(firstShip, cargoSlotsEurope);
                 UpdateCargoSlots(firstShip, cargoSlotsEurope);
 
@@ -637,39 +638,6 @@ public class UIManager : MonoBehaviour
         SetupShipsCargoSlotEurope(EuropeManager.instance.ShipsInEurope);
     }
     
-    // Purchase Ship //
-    public void ToggleShipPurchasePanel(bool show)
-    {
-        if (show)
-        {
-            UpdateShipPurchaseButtons(); 
-        }
-        
-        if (shipPurchasePanel != null)
-            shipPurchasePanel.SetActive(show);
-    }
-    
-    private void UpdateShipPurchaseButtons()
-    {
-        NavalUnitData[] shipsToBuy = EuropeManager.instance.PurchasableShips;
-
-        for (int i = 0; i < shipPurchaseButtonTexts.Length; i++)
-        {
-            if (i < shipsToBuy.Length && shipsToBuy[i] != null)
-            {
-                NavalUnitData shipData = shipsToBuy[i];
-
-                shipPurchaseButtonTexts[i].text = $"Cost: {shipData.price}G";
-
-                shipPurchaseButtonTexts[i].transform.parent.gameObject.SetActive(true); 
-            }
-            else
-            {
-                shipPurchaseButtonTexts[i].transform.parent.gameObject.SetActive(false);
-            }
-        }
-    }
-    
     public void ToggleUnitActionPanel(bool show)
     {
         if (unitActionPanel == null) return;
@@ -691,8 +659,7 @@ public class UIManager : MonoBehaviour
         {
             currentActionUnitDrag = null; 
         }
-    }
-
+    } 
     public void SelectUnitForAction(UnitDrag unitDrag)
     {
         currentActionUnitDrag = unitDrag;
@@ -716,6 +683,7 @@ public class UIManager : MonoBehaviour
         }
         ToggleUnitActionPanel(false);
     }
+    //--//
     
     public void ShowColonyClearLandText()
     {
@@ -731,5 +699,205 @@ public class UIManager : MonoBehaviour
     {
         DialogManager.instance.ShowColonyHasOtherTownAround();
     }
+    
+    public void AddNewShipInEurope(int i)
+    {
+        if (!GameManager.instance.CheckShipPriceAndMoney(i))
+            return;
 
+        NavalUnit ship = GameManager.instance.GenerateHiddenShip(i);
+        EuropeManager.instance.ShipsInEurope.Add(ship);
+
+        //Hide ship game object in map01
+        ship.gameObject.SetActive(false);
+
+        GameObject unitObj = Instantiate(shipInPortPrefab, europePortShipsParent.transform);
+        allShipInEuropeIcons.Add(unitObj);
+
+        ShipInPort shipIcon = unitObj.GetComponent<ShipInPort>();
+        shipIcon.UnitInit(ship, true);
+
+        GameManager.instance.PayShipPrice(i);
+        UpdateMoneyEuropeText();
+        TogglePurchasePanel(false);
+
+        SetupSelectedShipsCargoSlotEurope(ship);
+    }
+
+    public void TogglePurchasePanel(bool flag)
+    {
+        purchaseShipPanel.SetActive(flag);
+    }
+    
+    //Setup selected ship's cargo slot in New World
+    public void SetupSelectedShipsCargoSlot(NavalUnit ship)
+    {
+        UpdateShipSelectionVisuals(allShipIcons, ship);
+        
+        SetupCargoSlot(ship, cargoSlots);
+        UpdateCargoSlots(ship, cargoSlots);
+    }
+
+    //Setup selected ship's cargo slot in Europe
+    public void SetupSelectedShipsCargoSlotEurope(NavalUnit ship)
+    {
+        UpdateShipSelectionVisuals(allShipInEuropeIcons, ship);
+        
+        SetupCargoSlot(ship, cargoSlotsEurope);
+        UpdateCargoSlots(ship, cargoSlotsEurope);
+    }
+    
+    // public void CheckShipArriveWithPassenger(Hex hex)
+    // {
+    //     foreach (Unit unit in hex.UnitsInHex)
+    //     {
+    //         if (unit.UnitType == UnitType.Naval)
+    //         {
+    //             NavalUnit ship = (NavalUnit)unit;
+    //             GameManager.instance.CheckPassengerArriving(ship, hex, ship.Faction);
+    //         }
+    //     }
+    // }
+    //
+    // public void ToggleOrderPanel(bool flag)
+    // {
+    //     blockImage.SetActive(flag);
+    //     orderPanel.SetActive(flag);
+    // }
+    //
+    // private void SwapUnitMemberInTownToTheFront(List<Unit> unitList)
+    // {
+    //     if (curLandUnit == null)
+    //         return;
+    //
+    //     int i = unitList.IndexOf(curLandUnit);
+    //
+    //     if (i == -1)
+    //         return;
+    //
+    //     Unit unit = unitList[i];
+    //
+    //     unitList.RemoveAt(i);
+    //     unitList.Insert(0, unit);
+    // }
+    //
+    // private void SwapUnitMemberInEuropeToTheFront(List<LandUnit> landUnitList)
+    // {
+    //     if (curLandUnit == null)
+    //         return;
+    //
+    //     int i = landUnitList.IndexOf(curLandUnit);
+    //
+    //     if (i == -1)
+    //         return;
+    //
+    //     LandUnit landUnit = landUnitList[i];
+    //
+    //     landUnitList.RemoveAt(i);
+    //     landUnitList.Insert(0, landUnit);
+    // }
+    //
+    // private void MoveToTheFront()
+    // {
+    //     if (inEurope)
+    //         SwapUnitMemberInEuropeToTheFront(EuropeManager.instance.LandUnitsInEurope);
+    //     else
+    //         SwapUnitMemberInTownToTheFront(GameManager.instance.CurTown.CurHex.UnitsInHex);
+    // }
+    //
+    // public void SetOrderForLandUnit(int i) //Map with Order Button
+    // {
+    //     if (curLandUnit == null)
+    //         return;
+    //
+    //     switch (i)
+    //     {
+    //         case 0:
+    //             curLandUnit.UnitStatus = UnitStatus.None;
+    //             curUnitIcon.CheckStatusIcon();
+    //             break;
+    //         case 1:
+    //             curLandUnit.UnitStatus = UnitStatus.ToBoard;
+    //             curUnitIcon.CheckStatusIcon();
+    //             break;
+    //         case 2:
+    //             MoveToTheFront();
+    //             DestroyOldUnitDrag();
+    //
+    //             if (inEurope)
+    //                 SetupUnitDragInEuropePort();
+    //             else
+    //             {
+    //                 SetupUnitDragOutsideTown(GameManager.instance.CurTown.CurHex);
+    //                 SetupUnitDragWorkingInTerrain();
+    //             }
+    //             break;
+    //     }
+    //     ToggleOrderPanel(false);
+    // }
+    //
+    // public void ToggleTrainPanel(bool flag)
+    // {
+    //     trainUnitPanel.SetActive(flag);
+    // }
+    //
+    // public void CreateUnitDragInEuropePort(int i) //Map with Train Each Unit Button
+    // {
+    //     if (!GameManager.instance.CheckLandUnitPriceAndMoney(i))
+    //         return;
+    //
+    //     LandUnit landUnit = GameManager.instance.GenerateHiddenLandUnit(i);
+    //     EuropeManager.instance.LandUnitsInEurope.Add(landUnit);
+    //
+    //     //Hide unit's game object in map01
+    //     landUnit.gameObject.SetActive(false);
+    //
+    //     GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
+    //     waitingLandUnitsInEuropeIcons.Add(unitObj);
+    //
+    //     UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+    //     unitDrag.UnitInit(landUnit);
+    //
+    //     GameManager.instance.PayUnitPrice(i);
+    //     UpdateMoneyEuropeText();
+    //     ToggleTrainPanel(false);
+    // }
+    //
+    // public void SetupUnitDragInEuropePort()
+    // {
+    //     foreach (LandUnit unit in EuropeManager.instance.LandUnitsInEurope)
+    //     {
+    //         if (unit.UnitType == UnitType.Land)
+    //         {
+    //             if (unit.UnitStatus == UnitStatus.None || unit.UnitStatus == UnitStatus.ToBoard
+    //                 || unit.UnitStatus == UnitStatus.Hidden)
+    //             {
+    //                 GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
+    //                 waitingLandUnitsInEuropeIcons.Add(unitObj);
+    //
+    //                 UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+    //                 unitDrag.UnitInit(unit);
+    //                 unitDrag.CheckStatusIcon();
+    //             }
+    //         }
+    //     }
+    // }
+    
+    //Shadow//
+    private void UpdateShipSelectionVisuals(List<GameObject> iconList, NavalUnit selectedShip)
+    {
+        foreach (GameObject obj in iconList)
+        {
+            if (obj == null) continue;
+
+            ShipInPort icon = obj.GetComponent<ShipInPort>();
+            if (icon != null)
+            {
+                bool isTarget = (icon.NavalUnit == selectedShip);
+                
+                icon.SetSelected(isTarget);
+            }
+        }
+    }
+    
 }

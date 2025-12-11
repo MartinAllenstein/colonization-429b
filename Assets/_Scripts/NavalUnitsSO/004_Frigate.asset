@@ -20,4 +20,4 @@ MonoBehaviour:
   shipIcon: {fileID: 21300000, guid: eb9c8f706882f334c9761742c38cff2c, type: 3}
   armed: 1
   cargoHoldNum: 4
-  price: 500
+  price: 5000

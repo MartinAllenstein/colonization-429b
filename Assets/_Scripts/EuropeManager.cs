@@ -46,11 +46,6 @@ public class EuropeManager : MonoBehaviour
         get { return curShip; }
         set { curShip = value; }
     }
-     
-    [Header("Ship Purchasing")]
-    [SerializeField]
-    private NavalUnitData[] purchasableShips;
-    public NavalUnitData[] PurchasableShips { get { return purchasableShips; } }
 
     public static EuropeManager instance;
 
@@ -169,35 +164,6 @@ public class EuropeManager : MonoBehaviour
         shipsInEurope.Remove(ship);
 
         UIManager.instance.UpdateIconsFromEuropeToNewWorld();
-    }
-    
-    public void BuyShip(int shipIndex)
-    {
-        if (shipIndex < 0 || shipIndex >= purchasableShips.Length)
-        {
-            Debug.LogError($"Invalid shipIndex: {shipIndex}");
-            return;
-        }
-
-        NavalUnitData shipToBuy = purchasableShips[shipIndex];
-        
-        if (GameManager.instance.PlayerFaction.Money >= shipToBuy.price)
-        {
-            GameManager.instance.PlayerFaction.Money -= shipToBuy.price;
-
-            NavalUnit newShip = GameManager.instance.CreateNewShipForEurope(shipToBuy);
-
-            ShipsInEurope.Add(newShip);
-
-            UIManager.instance.UpdateIconsFromEuropeToNewWorld();
-            UIManager.instance.UpdateMoneyEuropeText();
-        
-            //Debug.Log($"Bought {shipToBuy.unitName} for {shipToBuy.price}");
-        }
-        else
-        {
-            Debug.Log("Not enough money!");
-        }
     }
 
 }

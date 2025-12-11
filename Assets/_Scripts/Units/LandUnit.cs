@@ -135,6 +135,7 @@ public class LandUnit : Unit
         else
         {
             unitStatus = UnitStatus.Clearing;
+            //ChangeStatusIcon();
             toolsNum -= 20;
         }
     }
@@ -166,6 +167,7 @@ public class LandUnit : Unit
         else
         {
             unitStatus = UnitStatus.Building;
+            //ChangeStatusIcon();
             toolsNum -= 20;
         }
     }
