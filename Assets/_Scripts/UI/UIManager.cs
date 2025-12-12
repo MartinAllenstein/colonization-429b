@@ -136,6 +136,29 @@ public class UIManager : MonoBehaviour
     private GameObject purchaseShipPanel;
     public GameObject PurchaseShipPanel { get { return purchaseShipPanel; } }
     
+    [SerializeField]
+    private LandUnit curLandUnit;
+    public LandUnit CurLandUnit { get { return curLandUnit; } set { curLandUnit = value; } }
+
+    [SerializeField]
+    private GameObject orderPanel;
+    public GameObject OrderPanel { get { return orderPanel; } set { orderPanel = value; } }
+
+    [SerializeField]
+    private GameObject trainUnitPanel;
+    public GameObject TrainUnitPanel { get { return trainUnitPanel; } }
+
+    [SerializeField]
+    private GameObject europePortUnitParent;
+
+    [SerializeField]
+    private List<GameObject> waitingLandUnitsInEuropeIcons; //icons of people waiting at the port
+    public List<GameObject> WaitingLandUnitsInEuropeIcons { get { return waitingLandUnitsInEuropeIcons; } }
+
+    [SerializeField]
+    private UnitDrag curUnitIcon; //current land Unit icon a player has selected
+    public UnitDrag CurUnitIcon { get { return curUnitIcon; } set { curUnitIcon = value; } }
+    
     private UnitDrag currentActionUnitDrag;
 
     public static UIManager instance;
@@ -175,13 +198,24 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void DestroyOldUnitDrag()
+    public void DestroyOldUnitDrag()
     {
-        foreach (GameObject obj in allUnitDrags)
+        if (inEurope)
         {
-            Destroy(obj);
+            foreach (GameObject obj in waitingLandUnitsInEuropeIcons)
+            {
+                Destroy(obj);
+            }
+            waitingLandUnitsInEuropeIcons.Clear();
         }
-        allUnitDrags.Clear();
+        else
+        {
+            foreach (GameObject obj in allUnitDrags)
+            {
+                Destroy(obj);
+            }
+            allUnitDrags.Clear();
+        }
     }
     
     private void HideUnitWorkInTown(Hex hex)
@@ -501,6 +535,8 @@ public class UIManager : MonoBehaviour
             SetupShipsFromEurope(EuropeManager.instance.ShipsFromEurope);
             SetupShipsInEurope(EuropeManager.instance.ShipsInEurope);
             SetupShipsCargoSlotEurope(EuropeManager.instance.ShipsInEurope);
+            DestroyOldUnitDrag();
+            SetupUnitDragInEuropePort();
             SetupStockSlotsEurope();
             UpdateMoneyEuropeText();
         }
@@ -747,141 +783,141 @@ public class UIManager : MonoBehaviour
         UpdateCargoSlots(ship, cargoSlotsEurope);
     }
     
-    // public void CheckShipArriveWithPassenger(Hex hex)
-    // {
-    //     foreach (Unit unit in hex.UnitsInHex)
-    //     {
-    //         if (unit.UnitType == UnitType.Naval)
-    //         {
-    //             NavalUnit ship = (NavalUnit)unit;
-    //             GameManager.instance.CheckPassengerArriving(ship, hex, ship.Faction);
-    //         }
-    //     }
-    // }
-    //
-    // public void ToggleOrderPanel(bool flag)
-    // {
-    //     blockImage.SetActive(flag);
-    //     orderPanel.SetActive(flag);
-    // }
-    //
-    // private void SwapUnitMemberInTownToTheFront(List<Unit> unitList)
-    // {
-    //     if (curLandUnit == null)
-    //         return;
-    //
-    //     int i = unitList.IndexOf(curLandUnit);
-    //
-    //     if (i == -1)
-    //         return;
-    //
-    //     Unit unit = unitList[i];
-    //
-    //     unitList.RemoveAt(i);
-    //     unitList.Insert(0, unit);
-    // }
-    //
-    // private void SwapUnitMemberInEuropeToTheFront(List<LandUnit> landUnitList)
-    // {
-    //     if (curLandUnit == null)
-    //         return;
-    //
-    //     int i = landUnitList.IndexOf(curLandUnit);
-    //
-    //     if (i == -1)
-    //         return;
-    //
-    //     LandUnit landUnit = landUnitList[i];
-    //
-    //     landUnitList.RemoveAt(i);
-    //     landUnitList.Insert(0, landUnit);
-    // }
-    //
-    // private void MoveToTheFront()
-    // {
-    //     if (inEurope)
-    //         SwapUnitMemberInEuropeToTheFront(EuropeManager.instance.LandUnitsInEurope);
-    //     else
-    //         SwapUnitMemberInTownToTheFront(GameManager.instance.CurTown.CurHex.UnitsInHex);
-    // }
-    //
-    // public void SetOrderForLandUnit(int i) //Map with Order Button
-    // {
-    //     if (curLandUnit == null)
-    //         return;
-    //
-    //     switch (i)
-    //     {
-    //         case 0:
-    //             curLandUnit.UnitStatus = UnitStatus.None;
-    //             curUnitIcon.CheckStatusIcon();
-    //             break;
-    //         case 1:
-    //             curLandUnit.UnitStatus = UnitStatus.ToBoard;
-    //             curUnitIcon.CheckStatusIcon();
-    //             break;
-    //         case 2:
-    //             MoveToTheFront();
-    //             DestroyOldUnitDrag();
-    //
-    //             if (inEurope)
-    //                 SetupUnitDragInEuropePort();
-    //             else
-    //             {
-    //                 SetupUnitDragOutsideTown(GameManager.instance.CurTown.CurHex);
-    //                 SetupUnitDragWorkingInTerrain();
-    //             }
-    //             break;
-    //     }
-    //     ToggleOrderPanel(false);
-    // }
-    //
-    // public void ToggleTrainPanel(bool flag)
-    // {
-    //     trainUnitPanel.SetActive(flag);
-    // }
-    //
-    // public void CreateUnitDragInEuropePort(int i) //Map with Train Each Unit Button
-    // {
-    //     if (!GameManager.instance.CheckLandUnitPriceAndMoney(i))
-    //         return;
-    //
-    //     LandUnit landUnit = GameManager.instance.GenerateHiddenLandUnit(i);
-    //     EuropeManager.instance.LandUnitsInEurope.Add(landUnit);
-    //
-    //     //Hide unit's game object in map01
-    //     landUnit.gameObject.SetActive(false);
-    //
-    //     GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
-    //     waitingLandUnitsInEuropeIcons.Add(unitObj);
-    //
-    //     UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
-    //     unitDrag.UnitInit(landUnit);
-    //
-    //     GameManager.instance.PayUnitPrice(i);
-    //     UpdateMoneyEuropeText();
-    //     ToggleTrainPanel(false);
-    // }
-    //
-    // public void SetupUnitDragInEuropePort()
-    // {
-    //     foreach (LandUnit unit in EuropeManager.instance.LandUnitsInEurope)
-    //     {
-    //         if (unit.UnitType == UnitType.Land)
-    //         {
-    //             if (unit.UnitStatus == UnitStatus.None || unit.UnitStatus == UnitStatus.ToBoard
-    //                 || unit.UnitStatus == UnitStatus.Hidden)
-    //             {
-    //                 GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
-    //                 waitingLandUnitsInEuropeIcons.Add(unitObj);
-    //
-    //                 UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
-    //                 unitDrag.UnitInit(unit);
-    //                 unitDrag.CheckStatusIcon();
-    //             }
-    //         }
-    //     }
-    // }
+    public void CheckShipArriveWithPassenger(Hex hex)
+    {
+        foreach (Unit unit in hex.UnitsInHex)
+        {
+            if (unit.UnitType == UnitType.Naval)
+            {
+                NavalUnit ship = (NavalUnit)unit;
+                GameManager.instance.CheckPassengerArriving(ship, hex, ship.Faction);
+            }
+        }
+    }
+    
+    public void ToggleOrderPanel(bool flag)
+    {
+        blockImage.SetActive(flag);
+        orderPanel.SetActive(flag);
+    }
+    
+    private void SwapUnitMemberInTownToTheFront(List<Unit> unitList)
+    {
+        if (curLandUnit == null)
+            return;
+    
+        int i = unitList.IndexOf(curLandUnit);
+    
+        if (i == -1)
+            return;
+    
+        Unit unit = unitList[i];
+    
+        unitList.RemoveAt(i);
+        unitList.Insert(0, unit);
+    }
+    
+    private void SwapUnitMemberInEuropeToTheFront(List<LandUnit> landUnitList)
+    {
+        if (curLandUnit == null)
+            return;
+    
+        int i = landUnitList.IndexOf(curLandUnit);
+    
+        if (i == -1)
+            return;
+    
+        LandUnit landUnit = landUnitList[i];
+    
+        landUnitList.RemoveAt(i);
+        landUnitList.Insert(0, landUnit);
+    }
+    
+    private void MoveToTheFront()
+    {
+        if (inEurope)
+            SwapUnitMemberInEuropeToTheFront(EuropeManager.instance.LandUnitsInEurope);
+        else
+            SwapUnitMemberInTownToTheFront(GameManager.instance.CurTown.CurHex.UnitsInHex);
+    }
+    
+    public void SetOrderForLandUnit(int i) //Map with Order Button
+    {
+        if (curLandUnit == null)
+            return;
+    
+        switch (i)
+        {
+            case 0:
+                curLandUnit.UnitStatus = UnitStatus.None;
+                curUnitIcon.CheckStatusIcon();
+                break;
+            case 1:
+                curLandUnit.UnitStatus = UnitStatus.ToBoard;
+                curUnitIcon.CheckStatusIcon();
+                break;
+            case 2:
+                MoveToTheFront();
+                DestroyOldUnitDrag();
+    
+                if (inEurope)
+                    SetupUnitDragInEuropePort();
+                else
+                {
+                    SetupUnitDragOutsideTown(GameManager.instance.CurTown.CurHex);
+                    SetupUnitDragWorkingInTerrain();
+                }
+                break;
+        }
+        ToggleOrderPanel(false);
+    }
+    
+    public void ToggleTrainPanel(bool flag)
+    {
+        trainUnitPanel.SetActive(flag);
+    }
+    
+    public void CreateUnitDragInEuropePort(int i) //Map with Train Each Unit Button
+    {
+        if (!GameManager.instance.CheckLandUnitPriceAndMoney(i))
+            return;
+    
+        LandUnit landUnit = GameManager.instance.GenerateHiddenLandUnit(i);
+        EuropeManager.instance.LandUnitsInEurope.Add(landUnit);
+    
+        //Hide unit's game object in map01
+        landUnit.gameObject.SetActive(false);
+    
+        GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
+        waitingLandUnitsInEuropeIcons.Add(unitObj);
+    
+        UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+        unitDrag.UnitInit(landUnit);
+    
+        GameManager.instance.PayUnitPrice(i);
+        UpdateMoneyEuropeText();
+        ToggleTrainPanel(false);
+    }
+    
+    public void SetupUnitDragInEuropePort()
+    {
+        foreach (LandUnit unit in EuropeManager.instance.LandUnitsInEurope)
+        {
+            if (unit.UnitType == UnitType.Land)
+            {
+                if (unit.UnitStatus == UnitStatus.None || unit.UnitStatus == UnitStatus.ToBoard
+                    || unit.UnitStatus == UnitStatus.Hidden)
+                {
+                    GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
+                    waitingLandUnitsInEuropeIcons.Add(unitObj);
+    
+                    UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+                    unitDrag.UnitInit(unit);
+                    unitDrag.CheckStatusIcon();
+                }
+            }
+        }
+    }
     
     //Shadow//
     private void UpdateShipSelectionVisuals(List<GameObject> iconList, NavalUnit selectedShip)

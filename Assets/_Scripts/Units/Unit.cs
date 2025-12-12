@@ -92,6 +92,16 @@ public class Unit : MonoBehaviour
     protected Unit targetUnit;
     public Unit TargetUnit { get { return targetUnit; } set { targetUnit = value; } }
     
+    [Header("Status")]
+    [SerializeField]
+    protected SpriteRenderer statusSprite;
+    public SpriteRenderer StatusSprite { get { return statusSprite; } }
+
+    [Header("Status Sprites")]
+    [SerializeField]
+    private Sprite[] statusSpritesList;
+    public Sprite[] StatusSpritesList { get { return statusSpritesList; } }
+    
     
 
     [SerializeField]
@@ -254,5 +264,27 @@ public class Unit : MonoBehaviour
         gameMgr.StartCombat(this, defender);
     }
 
+    public void ChangeStatusIcon()
+    {
+        if (statusSprite == null)
+            return;
+
+        switch (unitStatus)
+        {
+            case UnitStatus.Clearing:
+                statusSprite.gameObject.SetActive(true);
+                statusSprite.sprite = statusSpritesList[0];
+                break;
+            case UnitStatus.Building:
+                statusSprite.gameObject.SetActive(true);
+                statusSprite.sprite = statusSpritesList[1];
+                break;
+            default:
+                statusSprite.gameObject.SetActive(false);
+                statusSprite.sprite = null;
+                break;
+        }
+    }
+    
     
 }

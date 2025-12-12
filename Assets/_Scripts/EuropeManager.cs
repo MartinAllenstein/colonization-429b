@@ -46,6 +46,10 @@ public class EuropeManager : MonoBehaviour
         get { return curShip; }
         set { curShip = value; }
     }
+    
+    [SerializeField]
+    private List<LandUnit> landUnitsInEurope; //people waiting at the port
+    public List<LandUnit> LandUnitsInEurope { get { return landUnitsInEurope; } set { landUnitsInEurope = value; } }
 
     public static EuropeManager instance;
 
@@ -87,6 +91,7 @@ public class EuropeManager : MonoBehaviour
         curShip.CurHex.UnitsInHex.Remove(curShip);
         curShip.CurHex = null;
         curShip.gameObject.SetActive(false);
+        curShip.UnitStatus = UnitStatus.Hidden;
     }
     
     public void UpdateShipInTransitTurn()
@@ -100,6 +105,14 @@ public class EuropeManager : MonoBehaviour
             {
                 shipsInEurope.Add(shipInTransit.Ship);
                 shipsReachEurope.Add(shipInTransit);
+                
+                //Passenger arrives Europe
+                foreach (LandUnit passenger in shipInTransit.Ship.Passengers)
+                {
+                    passenger.UnitStatus = UnitStatus.None;
+                    landUnitsInEurope.Add(passenger);
+                }
+                shipInTransit.Ship.Passengers.Clear();
             }
             else
             {
@@ -166,4 +179,24 @@ public class EuropeManager : MonoBehaviour
         UIManager.instance.UpdateIconsFromEuropeToNewWorld();
     }
 
+    public void CheckIfPassengerInEuropeReadyToBoardShip(NavalUnit ship)
+    {
+        List<LandUnit> unitsToRemove = new List<LandUnit>();
+
+        foreach (LandUnit landUnit in landUnitsInEurope)
+        {
+            if (landUnit.UnitType == UnitType.Land && landUnit.UnitStatus == UnitStatus.ToBoard)
+            {
+                if ((ship.Passengers.Count + ship.CargoList.Count) < ship.CargoHoldNum)
+                {
+                    landUnit.BoardingShip(ship);
+                    landUnit.gameObject.SetActive(false);
+                    unitsToRemove.Add(landUnit);
+                }
+            }
+        }
+
+        foreach (LandUnit unit in unitsToRemove)
+            landUnitsInEurope.Remove(unit);
+    }
 }

@@ -14,9 +14,21 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     [SerializeField]
     private Transform iconParent;
     public Transform IconParent { get { return iconParent; } set { iconParent = value; } }
+    
+    [SerializeField]
+    private Image statusIcon;
+
+    [SerializeField]
+    private UIManager uiMgr;
 
     [SerializeField]
     private TerrainSlot terrainSlot;
+    
+    
+    void Awake()
+    {
+        uiMgr = UIManager.instance;
+    }
     
     void Start()
     {
@@ -39,6 +51,9 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (uiMgr.InEurope)
+            return;
+        
         iconParent = transform.parent;
         transform.SetParent(transform.root);
         transform.SetAsLastSibling();
@@ -48,6 +63,9 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     
     public void OnDrag(PointerEventData eventData)
     {
+        if (uiMgr.InEurope)
+            return;
+        
         transform.position = Input.mousePosition;
     }
 
@@ -75,10 +93,39 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     {
         this.terrainSlot = terrainSlot;
     }
+    
+    public void CheckStatusIcon()
+    {
+        if (statusIcon == null)
+            return;
+
+        switch (landUnit.UnitStatus)
+        {
+            case UnitStatus.ToBoard:
+                statusIcon.gameObject.SetActive(true);
+                statusIcon.sprite = landUnit.StatusSpritesList[2];
+                break;
+            default:
+                statusIcon.gameObject.SetActive(false);
+                break;
+        }
+    }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log("Click at Unit");
         UIManager.instance.SelectUnitForAction(this);
+        
+        if (landUnit.UnitStatus == UnitStatus.None || landUnit.UnitStatus == UnitStatus.ToBoard
+                                                   || landUnit.UnitStatus == UnitStatus.Hidden)
+        {
+            if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                uiMgr.CurLandUnit = landUnit;
+                uiMgr.CurUnitIcon = this;
+                uiMgr.ToggleOrderPanel(true);
+            }
+        }
+
     }
 }

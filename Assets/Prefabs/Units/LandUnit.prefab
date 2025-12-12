@@ -284,7 +284,14 @@ MonoBehaviour:
   unitSprite: {fileID: 3545856300586733620}
   flagSprite: {fileID: 6796452499036433209}
   borderSprite: {fileID: 275566413565197362}
+  targetUnit: {fileID: 0}
+  statusSprite: {fileID: 0}
+  statusSpritesList:
+  - {fileID: 21300000, guid: 9e9c884a179022749905e7739307322e, type: 3}
+  - {fileID: 21300000, guid: 23c830396b43e2f449851d288b1f763b, type: 3}
+  - {fileID: 21300000, guid: 2b21f01371298604886ff8de861b38a1, type: 3}
   gameMgr: {fileID: 0}
+  uiMgr: {fileID: 0}
   landUnitType: 0
   toolsNum: 0
   musketsNum: 0

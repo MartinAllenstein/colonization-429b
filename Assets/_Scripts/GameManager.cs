@@ -934,7 +934,5 @@ public class GameManager : MonoBehaviour
     {
         playerFaction.Money -= landUnitData[i].price;
     }
-
-
     
 }
