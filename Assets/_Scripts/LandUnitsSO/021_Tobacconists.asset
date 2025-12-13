@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5267c2b194a5867478b99a9d50cc2beb, type: 3}
+  m_Name: 021_Tobacconists
+  m_EditorClassIdentifier: 
+  unitName: Tobacconists
+  landUnitType: 21
+  strength: 1
+  movePointMax: 3
+  visualRange: 1
+  unitIcon: {fileID: 21300000, guid: 05602723b78d5ec42a24f3e7ea5b6eb1, type: 3}
+  armed: 0
+  hasMusket: 0
+  hasHorse: 0
+  price: 0

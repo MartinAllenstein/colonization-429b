@@ -14,7 +14,25 @@ public enum LandUnitType
     Lumberjacks,
     Carpenters,
     OreMiners,
-    Blacksmiths
+    Blacksmiths,
+    FurTrappers,
+    FurTraders,
+    CottonPlanters,
+    CottonWeavers,
+    Missionaries,
+    Statesmen,
+    Gunsmiths,
+    Criminals,
+    TobaccoPlanters,
+    Tobacconists,
+    SugarPlanters,
+    RumDistillers,
+    IndianConverts,
+    IndenturedServant,
+    Regulars,
+    Artillery,
+    Wagons,
+    Treasures
 }
 public class LandUnit : Unit
 {
@@ -135,7 +153,7 @@ public class LandUnit : Unit
         else
         {
             unitStatus = UnitStatus.Clearing;
-            //ChangeStatusIcon();
+            ChangeStatusIcon();
             toolsNum -= 20;
         }
     }
@@ -167,7 +185,7 @@ public class LandUnit : Unit
         else
         {
             unitStatus = UnitStatus.Building;
-            //ChangeStatusIcon();
+            ChangeStatusIcon();
             toolsNum -= 20;
         }
     }
@@ -199,6 +217,7 @@ public class LandUnit : Unit
         transportShip = ship;
         gameObject.transform.parent = ship.PassengerParent.transform;
         unitStatus = UnitStatus.OnBoard;
+        transform.position = ship.transform.position;
     }
     
     protected override void StayOnHex(Hex hex)
