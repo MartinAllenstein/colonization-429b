@@ -180,18 +180,24 @@ public class UIManager : MonoBehaviour
     {
         
     }
+    
+    public void EndTurn()
+    {
+        GameManager.instance.Endturn();
+    }
 
     public void SetupHexSlots(Hex centerHex, Hex[] aroundHexes)
     {
         centerSlot.HexSlotInit(centerHex);
 
-        // setup auto Food production on CenterSlot
+        //setup auto Food production on CenterSlot
+        //Debug.Log("Setup Center Slot");
 
         if (centerSlot.Hex.YieldID == -1)
-            centerSlot.SelectYield(0); //Change to Food
+            centerSlot.SelectYield(0);//Change to Food (Adjust Actual Yield and Accumulate
         else
-            centerSlot.AdjustActualYield(); //Already Food
-        
+            centerSlot.AdjustActualYield();//Already Food (Adjust Actual Yield)
+
         for (int i = 0; i < areaSlots.Length; i++)
         {
             areaSlots[i].HexSlotInit(aroundHexes[i]);
@@ -231,13 +237,16 @@ public class UIManager : MonoBehaviour
     {
         foreach (Unit unit in hex.UnitsInHex)
         {
-            if (unit.UnitType == UnitType.Land && unit.UnitStatus == UnitStatus.None)
+            if (unit.UnitType == UnitType.Land) 
             {
-                GameObject unitObj = Instantiate(unitDragPrefab, outsideTownParent.transform);
-                allUnitDrags.Add(unitObj);
+                if (unit.UnitStatus == UnitStatus.None || unit.UnitStatus == UnitStatus.ToBoard)
+                {
+                    GameObject unitObj = Instantiate(unitDragPrefab, outsideTownParent.transform);
+                    allUnitDrags.Add(unitObj);
 
-                UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
-                unitDrag.UnitInit((LandUnit)unit);
+                    UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
+                    unitDrag.UnitInit((LandUnit)unit);
+                }
             }
         }
     }
@@ -270,27 +279,44 @@ public class UIManager : MonoBehaviour
             DestroyOldUnitDrag();
             RemoveAllYieldIcons();
             HideUnitWorkInTown(GameManager.instance.CurTown.CurHex);
+            DeleteAllCargoDragsInSlots(cargoSlots);
             DestroyAllShipIcons();
             DisableAllCargoSlots(cargoSlots);
         }
         townPanel.SetActive(show);
     }
     
-    public void SetupCurrentTown(Hex curHex, Hex[] aroundHexes)
+    public void SetupCurrentTown(Hex curHex, Hex[] aroundHexes)//open Town Panel
     {
+        //Terrain
         SetupHexSlots(curHex, aroundHexes);
+
+        //Check passenger units arrived
+        CheckShipArriveWithPassenger(curHex);
+
+        //Available Workers
         SetupUnitDragOutsideTown(curHex);
+        
+        //Working Workers
         SetupUnitDragWorkingInTerrain();
         SetupYieldInTerrain();
+
+        //Town Info
         UpdateTotalFoodIcons();
         SetupStockSlots(curHex);
+
+        //Ship
         SetupShipsInPort(curHex);
         SetupShipsCargoSlot(curHex);
+
+        //Text
         UpdateMoneyText();
     }
     
     private void SetupYieldInTerrain()
     {
+        //Debug.Log("Setup Around Slot");
+
         foreach (TerrainSlot terrainSlot in areaSlots)
         {
             if (terrainSlot.Hex == null)
@@ -333,7 +359,7 @@ public class UIManager : MonoBehaviour
 
         for (int i = 0; i < btnYieldTexts.Length; i++)
         {
-            string s = string.Format("{0} {1}",
+            string s = string.Format("{0} {1}", 
                 currentSlot.NormalYield[i], GameManager.instance.ProductData[i].productName);
 
             btnYieldTexts[i].text = s;
@@ -353,14 +379,14 @@ public class UIManager : MonoBehaviour
     
     public void SelectYield(int i)//Link to Select Profession Button on UI
     {
-        Debug.Log($"Select: {i}");
+        //Debug.Log($"Select: {i}");
 
         if (currentSlot != null)
             currentSlot.SelectYield(i);
 
         blockImage.SetActive(false);
         professionPanel.SetActive(false);
-        
+
         if (currentSlot.Hex.YieldID == 0)
             UpdateTotalFoodIcons();
     }
@@ -371,7 +397,6 @@ public class UIManager : MonoBehaviour
             return;
 
         HorizontalLayoutGroup layout = parent.GetComponent<HorizontalLayoutGroup>();
-        
         int totalWidth = iconWidth * n;
         int excessWidth = totalWidth - parentWidth;
 
@@ -398,8 +423,9 @@ public class UIManager : MonoBehaviour
             Destroy(obj);
 
         foodIconList.Clear();
-
+        //Debug.Log($"Food This Turn:{GameManager.instance.CurTown.TotalYieldThisTurn[0]}");
         foodText.text = GameManager.instance.CurTown.TotalYieldThisTurn[0].ToString();
+        //Debug.Log($"Update Food Text:{foodText.text}");
         foodText.gameObject.SetActive(true);
 
         for (int i = 0; i < GameManager.instance.CurTown.TotalYieldThisTurn[0]; i++)
@@ -407,13 +433,15 @@ public class UIManager : MonoBehaviour
             GameObject iconobj = GenerateFoodIcon();
             foodIconList.Add(iconobj);
         }
-        SetupParentSpacing(GameManager.instance.CurTown.TotalYieldThisTurn[0], foodParent, 64, 300);
+        SetupParentSpacing(
+            GameManager.instance.CurTown.TotalYieldThisTurn[0], foodParent, 64, 300);
     }
     
     public void CheckActiveUIPanel()
     {
         if (townPanel.activeInHierarchy)
             ToggleTownPanel(false);
+
         if (europePanel.activeInHierarchy)
             ToggleEuropePanel(false);
     }
@@ -426,7 +454,7 @@ public class UIManager : MonoBehaviour
         }
     }
     
-    private void SetupShipsInPort(Hex hex)
+    private void SetupShipsInPort(Hex hex) //in New World
     {
         foreach (Unit unit in hex.UnitsInHex)
         {
@@ -439,7 +467,6 @@ public class UIManager : MonoBehaviour
                 shipIcon.UnitInit((NavalUnit)unit, false);
             }
         }
-        
     }
     
     public void SetupCargoSlot(NavalUnit ship, CargoSlot[] cargoSlots)
@@ -465,9 +492,6 @@ public class UIManager : MonoBehaviour
             {
                 //first ship
                 NavalUnit firstShip = unit.gameObject.GetComponent<NavalUnit>();
-                
-                UpdateShipSelectionVisuals(allShipIcons, firstShip);
-                
                 SetupCargoSlot(firstShip, cargoSlots);
                 UpdateCargoSlots(firstShip, cargoSlots);
 
@@ -478,7 +502,16 @@ public class UIManager : MonoBehaviour
     
     public void ToggleStockDragRaycast(bool flag)
     {
-        foreach (StockSlot slot in stockSlots)
+        //Debug.Log($"All raycast:{flag}");
+
+        StockSlot[] slots;
+
+        if (inEurope)
+            slots = stockSlotsEurope;
+        else
+            slots = stockSlots;
+
+        foreach (StockSlot slot in slots)
         {
             slot.ToggleRayCastStockDrag(flag);
         }
@@ -521,7 +554,6 @@ public class UIManager : MonoBehaviour
         {
             DestroyAllShipsEuropeIcons();
             DisableAllCargoSlots(cargoSlotsEurope);
-            
             europePanel.SetActive(false);
             inEurope = false;
         }
@@ -530,7 +562,7 @@ public class UIManager : MonoBehaviour
             townPanel.SetActive(false);
             europePanel.SetActive(true);
             inEurope = true;
-            
+
             SetupShipsToEurope(EuropeManager.instance.ShipsToEurope);
             SetupShipsFromEurope(EuropeManager.instance.ShipsFromEurope);
             SetupShipsInEurope(EuropeManager.instance.ShipsInEurope);
@@ -602,9 +634,6 @@ public class UIManager : MonoBehaviour
             {
                 //first ship
                 NavalUnit firstShip = unit.gameObject.GetComponent<NavalUnit>();
-                
-                UpdateShipSelectionVisuals(allShipInEuropeIcons, firstShip);
-                
                 SetupCargoSlot(firstShip, cargoSlotsEurope);
                 UpdateCargoSlots(firstShip, cargoSlotsEurope);
 
@@ -653,7 +682,7 @@ public class UIManager : MonoBehaviour
         foreach (ShipInTransit shipInTransit in shipsToEU)
         {
             GameObject unitObj = Instantiate(shipInPortPrefab, fromEuropeShipsParent.transform);
-            allShipToEuropeIcons.Add(unitObj);
+            allShipFromEuropeIcons.Add(unitObj);
 
             ShipInPort shipIcon = unitObj.GetComponent<ShipInPort>();
             shipIcon.UnitInit(shipInTransit.Ship, false);
@@ -685,7 +714,7 @@ public class UIManager : MonoBehaviour
             if (currentActionUnitDrag != null)
             {
                 LandUnit unit = currentActionUnitDrag.LandUnit;
-                NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex);
+                NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex, unit.Faction);
                 
                 if (boardShipButton != null)
                     boardShipButton.gameObject.SetActive(ship != null);
@@ -707,7 +736,7 @@ public class UIManager : MonoBehaviour
         if (currentActionUnitDrag != null)
         {
             LandUnit unit = currentActionUnitDrag.LandUnit;
-            NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex);
+            NavalUnit ship = GameManager.instance.CheckIfHexHasOurShipToBoard(unit.CurHex, unit.Faction);
 
             if (ship != null)
             {
@@ -805,14 +834,14 @@ public class UIManager : MonoBehaviour
     {
         if (curLandUnit == null)
             return;
-    
+
         int i = unitList.IndexOf(curLandUnit);
-    
+
         if (i == -1)
             return;
-    
+
         Unit unit = unitList[i];
-    
+
         unitList.RemoveAt(i);
         unitList.Insert(0, unit);
     }
@@ -821,14 +850,14 @@ public class UIManager : MonoBehaviour
     {
         if (curLandUnit == null)
             return;
-    
+
         int i = landUnitList.IndexOf(curLandUnit);
-    
+
         if (i == -1)
             return;
-    
+
         LandUnit landUnit = landUnitList[i];
-    
+
         landUnitList.RemoveAt(i);
         landUnitList.Insert(0, landUnit);
     }
@@ -881,19 +910,19 @@ public class UIManager : MonoBehaviour
     {
         if (!GameManager.instance.CheckLandUnitPriceAndMoney(i))
             return;
-    
+
         LandUnit landUnit = GameManager.instance.GenerateHiddenLandUnit(i);
         EuropeManager.instance.LandUnitsInEurope.Add(landUnit);
-    
+
         //Hide unit's game object in map01
         landUnit.gameObject.SetActive(false);
-    
+
         GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
         waitingLandUnitsInEuropeIcons.Add(unitObj);
-    
+
         UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
         unitDrag.UnitInit(landUnit);
-    
+
         GameManager.instance.PayUnitPrice(i);
         UpdateMoneyEuropeText();
         ToggleTrainPanel(false);
@@ -906,11 +935,11 @@ public class UIManager : MonoBehaviour
             if (unit.UnitType == UnitType.Land)
             {
                 if (unit.UnitStatus == UnitStatus.None || unit.UnitStatus == UnitStatus.ToBoard
-                    || unit.UnitStatus == UnitStatus.Hidden)
+                                                       || unit.UnitStatus == UnitStatus.Hidden)
                 {
                     GameObject unitObj = Instantiate(unitDragPrefab, europePortUnitParent.transform);
                     waitingLandUnitsInEuropeIcons.Add(unitObj);
-    
+
                     UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
                     unitDrag.UnitInit(unit);
                     unitDrag.CheckStatusIcon();

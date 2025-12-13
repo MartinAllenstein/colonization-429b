@@ -70,6 +70,7 @@ public class CargoDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
         CargoDragDeductQuantity();
         //Debug.Log("CargoDrag - Begin Drag");
+
         uiMgr.ToggleStockDragRaycast(false);
     }
     

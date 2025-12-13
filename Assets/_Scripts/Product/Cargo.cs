@@ -11,11 +11,9 @@ public class Cargo
     private int quantity;
     public int Quantity { get { return quantity; } set { quantity = value; } }
 
-
     public Cargo(int id, int q)
     {
         productId = id;
         quantity = q;
     }
-
 }

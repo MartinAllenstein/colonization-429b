@@ -25,33 +25,40 @@ public class AIManager : MonoBehaviour
     private void AutoMoveToHex(Unit unit)
     {
         unit.ShowHideSprite(true);
-        
+
         if (unit.DestinationHex != null)
             unit.CheckMoveToDestination();
         else
             RandomMoveOneHex(unit);
-        
     }
     
     private IEnumerator EnemyUnitMoves()
     {
         foreach (Faction faction in GameManager.instance.Factions)
         {
+            //Debug.Log($"{faction.Nation}: 0");
             GameManager.instance.ResetAllUnits(faction);
 
             if (faction == GameManager.instance.PlayerFaction)
+            {
+                //Debug.Log($"Skip:{faction} vs {GameManager.instance.PlayerFaction}");
                 continue;
-       
+            }
 
             foreach (Unit unit in faction.Units)
             {
+                //Debug.Log($"{faction.Nation}: 1");
+
                 GameManager.instance.SelectAiUnit(unit);
+                UnitAI unitAI = unit.GetComponent<UnitAI>();
 
                 if (unit.Visible)
                     CameraController.instance.MoveCamera(unit.CurPos);
 
                 if (unit.UnitStatus == UnitStatus.OnBoard)
                     continue;
+
+                //Unit move or attack
                 //Debug.Log("Move");
                 AutoMoveToHex(unit);
 
@@ -59,12 +66,14 @@ public class AIManager : MonoBehaviour
             }
         }
         GameManager.instance.GameTurn++;
+        
+
         //New Turn Dialog and Focus on Player's unit
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         //Debug.Log("Release Mouse");
         //Debug.Log("New Turn");
-
         GameManager.instance.StartNewTurn();
     }
     

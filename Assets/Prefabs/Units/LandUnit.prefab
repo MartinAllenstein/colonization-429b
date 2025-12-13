@@ -373,7 +373,7 @@ MonoBehaviour:
   flagSprite: {fileID: 6796452499036433209}
   borderSprite: {fileID: 275566413565197362}
   targetUnit: {fileID: 0}
-  statusSprite: {fileID: 0}
+  statusSprite: {fileID: 7417051931194993009}
   statusSpritesList:
   - {fileID: 21300000, guid: 9e9c884a179022749905e7739307322e, type: 3}
   - {fileID: 21300000, guid: 23c830396b43e2f449851d288b1f763b, type: 3}

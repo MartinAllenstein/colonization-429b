@@ -42,9 +42,7 @@ public class ShipInPort : MonoBehaviour, IPointerClickHandler
         if (uiMgr.InEurope)
             uiMgr.SetupSelectedShipsCargoSlotEurope(navalUnit);
         else
-        {
             uiMgr.SetupSelectedShipsCargoSlot(navalUnit);
-        }
     }
 
 

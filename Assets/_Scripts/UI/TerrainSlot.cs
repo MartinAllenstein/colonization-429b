@@ -71,9 +71,10 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
         if (centerHex || hex.Labor != null)
             return;
 
+        //Debug.Log($"On Drop:{hex.X},{hex.Y}:{hex.HexType}");
         GameObject unitObj = eventData.pointerDrag;
         UnitDrag unitDrag = unitObj.GetComponent<UnitDrag>();
-        
+
         if (unitDrag == null)
             return;
 
@@ -97,7 +98,7 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
             hex = hexData;
             terrainImage.sprite = hex.TerrainSprite.sprite;
             SetupNormalYield();
-        
+
             if (hex.HasForest)
             {
                 forestImage.sprite = hex.ForestSprite.sprite;
@@ -120,12 +121,12 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
 
         iconImg.sprite = gameMgr.ProductData[i].icons[0];
 
-        if (i == 0)
+        if (i == 0)//Food
         {
             if (hex.HexType == HexType.Ocean)
-                iconImg.sprite = gameMgr.ProductData[0].icons[1];
+                iconImg.sprite = gameMgr.ProductData[0].icons[1];//Fish
             else
-                iconImg.sprite = gameMgr.ProductData[0].icons[0];
+                iconImg.sprite = gameMgr.ProductData[0].icons[0];//Corn
         }
 
         return yieldObj;
@@ -133,6 +134,8 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
     
     public void GenerateYieldIcons(int id)
     {
+        //Debug.Log($"Gen Icon of id:{id}, quantiy:{actualYield[id]}");
+
         yieldText.text = actualYield[id].ToString();
         yieldText.gameObject.SetActive(true);
 
@@ -146,13 +149,16 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
     
     public void AdjustActualYield()
     {
-        //Formula to Adjust NormalYield *
-        
-        //convert normal Yield to actual yield
-        
         ConvertNormalToActualYield(hex.YieldID);
 
         //accumulate actual yield to total production
+        //Debug.Log($"Yield ID:{hex.YieldID}");
+        //Debug.Log($"Normal Yield:{normalYield[hex.YieldID]}");
+        //Debug.Log($"ID:{hex.YieldID}-Actual Yield:{actualYield[hex.YieldID]} plus to {gameMgr.CurTown.TotalYieldThisTurn[hex.YieldID]}");
+
+        //gameMgr.CurTown.TotalYieldThisTurn[hex.YieldID] += actualYield[hex.YieldID];
+
+        //Debug.Log($"Total Yield this turn:{gameMgr.CurTown.TotalYieldThisTurn[hex.YieldID]}");
 
         //generate all yield icons in one hex
         GenerateYieldIcons(hex.YieldID);
@@ -176,7 +182,9 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
         }
         yieldIconList.Clear();
         yieldText.gameObject.SetActive(false);
-        
+
+        //ReduceTownYield();
+
         if (hex.YieldID == 0)
             uiMgr.UpdateTotalFoodIcons();
     }
@@ -185,14 +193,14 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
     {
         for (int i = 0; i < 8; i++)
         {
-            normalYield[i] = hex.ResourceYield[i];
+            normalYield[i] = hex.ResourceYield[i]; //Data from Scriptable Object
 
             if (i == 4 || i == 5) //Fur or Lumber
             {
-                if (!hex.HasForest)
+                if (!hex.HasForest) //No forest
                     normalYield[i] = 0;
             }
-            else
+            else //Not Fur nor Lumber
             {
                 if (hex.HasForest)
                     normalYield[i] -= 2; //Reduce agriculture
@@ -218,7 +226,7 @@ public class TerrainSlot : MonoBehaviour,IDropHandler
         if (hex.YieldID == -1)
             return;
 
-        //Formula to Adjust NormalYield *
+        //Formula to Adjust NormalYield ***
 
 
         //convert normal Yield to actual yield

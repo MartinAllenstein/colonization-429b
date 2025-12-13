@@ -69,10 +69,7 @@ public class EuropeManager : MonoBehaviour
 
         for (int i = 0; i < europeStocks.Length; i++)
         {
-            europeStocks[i] =
-                new EUStock(i,
-                    gameMgr.ProductData[i].startBid, gameMgr.ProductData[i].startAsk,
-                    500);
+            europeStocks[i] = new EUStock(i, gameMgr.ProductData[i].startBid, gameMgr.ProductData[i].startAsk, 500);
         }
     }
     
@@ -105,7 +102,7 @@ public class EuropeManager : MonoBehaviour
             {
                 shipsInEurope.Add(shipInTransit.Ship);
                 shipsReachEurope.Add(shipInTransit);
-                
+
                 //Passenger arrives Europe
                 foreach (LandUnit passenger in shipInTransit.Ship.Passengers)
                 {
@@ -121,27 +118,25 @@ public class EuropeManager : MonoBehaviour
                     shipInTransit.TurnLeft = 1;
             }
         }
-
         //Remove from Transit
         foreach (ShipInTransit shipReachEU in shipsReachEurope)
         {
             if (shipsToEurope.Contains(shipReachEU))
                 shipsToEurope.Remove(shipReachEU);
         }
-
         shipsReachEurope.Clear();
 
         //--------------
 
         //From Europe
         List<ShipInTransit> shipsReachNewWorld = new List<ShipInTransit>();
-    
+
         foreach (ShipInTransit shipInTransit in shipsFromEurope)
         {
             if (shipInTransit.TurnLeft == 1)
             {
                 NavalUnit ship = shipInTransit.Ship;
-    
+
                 //Show up in Map01
                 GameManager.instance.CheckToGenerateShipFromEurope(ship);
                 shipsReachNewWorld.Add(shipInTransit);

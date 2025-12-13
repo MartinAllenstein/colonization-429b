@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 public enum LandUnitType
@@ -71,7 +70,7 @@ public class LandUnit : Unit
     public NavalUnit TransportShip { get { return transportShip; } set { transportShip = value; } }
     
     
-    public void UnitInit(GameManager gameMgr,UIManager uiMgr, Faction fact, LandUnitData data)
+    public void UnitInit(GameManager gameMgr, UIManager uiMgr, Faction fact, LandUnitData data)
     {
         base.gameMgr = gameMgr;
         base.uiMgr = uiMgr;
@@ -85,7 +84,7 @@ public class LandUnit : Unit
         visualRange = data.visualRange;
         unitSprite.sprite = data.unitIcon;
         unitStatus = UnitStatus.None;
-    
+        
         landUnitType = data.landUnitType;
         if (landUnitType == LandUnitType.HardyPioneers)
             toolsNum = 100;
@@ -113,19 +112,18 @@ public class LandUnit : Unit
 
         if (Input.GetKeyDown(KeyCode.B))
         {
-            if (this == gameMgr.CurUnit)
+            if (this == gameMgr.CurUnit && unitStatus != UnitStatus.Building)
                 BuildSettlement();
         }
 
         if (Input.GetKeyDown(KeyCode.P))
         {
-            if (this == gameMgr.CurUnit)
+            if (this == gameMgr.CurUnit && unitStatus != UnitStatus.Clearing)
                 ClearingLand();
         }
-        
     }
     
-    private void MakeLandfall()
+    public void MakeLandfall()
     {
         //Make Landfall
         unitStatus = UnitStatus.None;
@@ -136,10 +134,11 @@ public class LandUnit : Unit
     
     public void ClearingLand()
     {
-        if(landUnitType != LandUnitType.HardyPioneers)
+        if (landUnitType != LandUnitType.HardyPioneers)
             return;
-        
-        if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HexType == HexType.Hills || !curHex.HasForest)
+
+        if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains 
+                                            || curHex.HexType == HexType.Hills || !curHex.HasForest)
         {
             //warning has to be cleared land
             Debug.Log("Must be on Forest");
@@ -147,7 +146,6 @@ public class LandUnit : Unit
         else if (toolsNum < 20)
         {
             //warning not enough tools
-            Debug.Log("Not enough tools");
             uiMgr.ShowColonyNotEnoughToolsText(toolsNum);
         }
         else
@@ -162,7 +160,7 @@ public class LandUnit : Unit
     {
         if (landUnitType != LandUnitType.HardyPioneers)
             return;
-        
+
         Debug.Log("Build Settlement");
 
         if (curHex.HexType == HexType.Ocean || curHex.HexType == HexType.Mountains || curHex.HasForest)
@@ -174,12 +172,11 @@ public class LandUnit : Unit
         else if (toolsNum < 20)
         {
             //warning not enough tools
-            Debug.Log("Not enough tools");
             uiMgr.ShowColonyNotEnoughToolsText(toolsNum);
         }
         else if (gameMgr.CheckIfAroundHexHasTown(curHex))
         {
-            Debug.Log("Must not be next to another town or village");
+            Debug.Log("Must not be next to another town or village.");
             uiMgr.ShowColonyHasOtherTownAroundText();
         }
         else
@@ -201,10 +198,12 @@ public class LandUnit : Unit
             if (unitStatus == UnitStatus.OnBoard)
                 MakeLandfall();
         }
-        else if (gameMgr.CheckIfHexHasOurShipToBoard(targetHex))
+        //Ocean but has our ship to board
+        else if (gameMgr.CheckIfHexHasOurShipToBoard(targetHex, faction))
         {
             base.PrepareMoveToHex(targetHex);
         }
+        //Ocean without our ship to board
         else
         {
             StayOnHex(curHex);
@@ -227,15 +226,15 @@ public class LandUnit : Unit
         if (hex.HexType != HexType.Ocean)
             return;
 
-        //Check again if this ship can be boarded
-        NavalUnit ship = gameMgr.CheckIfHexHasOurShipToBoard(hex);
+        //Check if boarding the ship
+        NavalUnit ship = gameMgr.CheckIfHexHasOurShipToBoard(hex, faction);
 
         if (ship != null)
             BoardingShip(ship);
-        
+
         if (destinationHex != null)
             CheckMoveToDestination();
-        
+
         if (faction == gameMgr.PlayerFaction)
             gameMgr.CheckUnmetFaction(this);
     }

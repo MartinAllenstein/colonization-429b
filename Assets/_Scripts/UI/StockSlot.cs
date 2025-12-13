@@ -51,13 +51,13 @@ public class StockSlot : MonoBehaviour, IDropHandler
         town = t;
         productId = i;
         image.sprite = gameMgr.ProductData[i].icons[0];
-        stockText.text = quantity.ToString();
+        quantity = town.Warehouse[productId];
 
         if (Europe)
             stockText.text = $"{EUMgr.EuropeStocks[i].BidPrice}/{EUMgr.EuropeStocks[i].AskPrice}";
         else
             stockText.text = quantity.ToString();
-        
+
         if (stockDrag == null)
         {
             stockDrag = GenerateStockDrag(productId, this);
@@ -71,11 +71,14 @@ public class StockSlot : MonoBehaviour, IDropHandler
 
     public void UpdateQuantityStock(int n)
     {
+        Debug.Log($"n: {n}");
+
         if (uiMgr.InEurope)
         {
             EUMgr.EuropeStocks[productId].Quantity += n;
             quantity = EUMgr.EuropeStocks[productId].Quantity;
 
+            //Check Price Change
             stockText.text = $"{EUMgr.EuropeStocks[productId].BidPrice}/{EUMgr.EuropeStocks[productId].AskPrice}";
         }
         else
@@ -105,6 +108,13 @@ public class StockSlot : MonoBehaviour, IDropHandler
             stockDrag.Image.raycastTarget = flag;
     }
     
+    public void UpdateQuantityStockEU(int n)
+    {
+        EUMgr.EuropeStocks[productId].Quantity += n;
+        quantity = EUMgr.EuropeStocks[productId].Quantity;
+        stockText.text = $"{EUMgr.EuropeStocks[productId].BidPrice}/{EUMgr.EuropeStocks[productId].AskPrice}";
+    }
+    
     public void OnDrop(PointerEventData eventData)
     {
         GameObject obj = eventData.pointerDrag;
@@ -117,25 +127,27 @@ public class StockSlot : MonoBehaviour, IDropHandler
             return;
 
         UpdateQuantityStock(cargoDrag.Cargo.Quantity);
+
         cargoDrag.RemoveCargoListFromShip();
 
         if (uiMgr.InEurope)
         {
             uiMgr.UpdateCargoSlots(cargoDrag.Ship, uiMgr.CargoSlotsEurope);
             //Sell to market
-            gameMgr.PlayerFaction.Money += cargoDrag.Cargo.Quantity * EUMgr.EuropeStocks[productId].BidPrice;
-            
+            gameMgr.PlayerFaction.Money += 
+                cargoDrag.Cargo.Quantity * EUMgr.EuropeStocks[productId].BidPrice;
+
             uiMgr.UpdateMoneyEuropeText();
         }
         else
         {
             uiMgr.UpdateCargoSlots(cargoDrag.Ship, uiMgr.CargoSlots);
         }
-        //Debug.Log("CargoDrag - On Drop - on StockSlot);
+
+        //Debug.Log("CargoDrag - On Drop - on StockSlot");
         uiMgr.ToggleStockDragRaycast(true);
 
         Destroy(obj);
-
     }
     
     public void stockInitEurope(int i)

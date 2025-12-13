@@ -50,9 +50,12 @@ public class Town : MonoBehaviour
     private int bellNum; //no. of bells produced in this turn
     public int BellNum { get { return bellNum; } set { bellNum = value; } }
     
+    [SerializeField]
+    protected GameManager gameMgr;
+    
     public void TownInit(GameManager gameMgr, Faction fact)
     {
-        gameManager = gameMgr;
+        this.gameMgr = gameMgr;
         faction = fact;
         flagSprite.sprite = fact.FlagIcon;
         townSprite.sprite = fact.TownIcon;
@@ -62,14 +65,15 @@ public class Town : MonoBehaviour
     {
         for (int i = 0; i < 16; i++)
         {
+            //Debug.Log($"accumulate: {totalYieldThisTurn[i]} to warehouse: {warehouse[i]}");
             warehouse[i] += totalYieldThisTurn[i];
         }
     }
     
     private void OnMouseDown()
     {
-        if (faction == gameManager.PlayerFaction)
-            gameManager.SetupCurrentTown(this);
+        if (faction == gameMgr.PlayerFaction)
+            gameMgr.SetupCurrentTown(this);
     }
     
     public void OnMouseOver()
@@ -77,12 +81,12 @@ public class Town : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             //Debug.Log($"To Move Hex:{curHex.X}, {curHex.Y}");
-            if (gameManager.CheckIfHexIsAdjacent(gameManager.CurUnit.CurHex, curHex))
+            if (gameMgr.CheckIfHexIsAdjacent(gameMgr.CurUnit.CurHex, curHex))
             {
-                if (faction == gameManager.PlayerFaction)//same side unit
+                if (faction == gameMgr.PlayerFaction)//same side unit
                 {
                     //Debug.Log("True");
-                    gameManager.CurUnit.PrepareMoveToHex(curHex);
+                    gameMgr.CurUnit.PrepareMoveToHex(curHex);
                 }
                 else//diff side unit
                 {

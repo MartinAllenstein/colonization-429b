@@ -74,6 +74,14 @@ public class Unit : MonoBehaviour
     [SerializeField]
     protected bool visible = false;
     public bool Visible { get { return visible; } set { visible = value; } }
+    
+    [SerializeField]
+    protected Unit targetUnit;
+    public Unit TargetUnit { get { return targetUnit; } set { targetUnit = value; } }
+    
+    [SerializeField]
+    protected int unitPrice;
+    public int UnitPrice { get { return unitPrice; } set { unitPrice = value; } }
 
     [Header("Unit")]
     [SerializeField]
@@ -87,10 +95,6 @@ public class Unit : MonoBehaviour
     [Header("Border")]
     [SerializeField]
     protected SpriteRenderer borderSprite;
-    
-    [SerializeField]
-    protected Unit targetUnit;
-    public Unit TargetUnit { get { return targetUnit; } set { targetUnit = value; } }
     
     [Header("Status")]
     [SerializeField]
@@ -118,6 +122,8 @@ public class Unit : MonoBehaviour
     {
         curHex = hex;
         curPos = hex.Pos;
+        if (!hex.UnitsInHex.Contains(this))
+            hex.UnitsInHex.Add(this);
     }
 
     protected virtual void Update()
@@ -126,10 +132,10 @@ public class Unit : MonoBehaviour
         {
             MoveToHex();
         }
-        
+
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            if (this == gameMgr.CurUnit && curHex.Town)
+            if (this == gameMgr.CurUnit && curHex.HasTown)
             {
                 if (curHex.Town != null)
                     gameMgr.SetupCurrentTown(curHex.Town);
@@ -148,6 +154,7 @@ public class Unit : MonoBehaviour
     
     public void ToggleBorder(bool flag, Color32 color)
     {
+        //Debug.Log($"{faction}:{unitName}-border:{flag}:{color}");
         borderSprite.gameObject.SetActive(flag);
         borderSprite.color = color;
     }
@@ -186,6 +193,8 @@ public class Unit : MonoBehaviour
 
         if (faction == gameMgr.PlayerFaction)
             gameMgr.LeaveSeenFogAroundUnit(this);
+
+        gameMgr.ShowFirstOfOtherUnit(curHex);
     }
 
     
@@ -193,7 +202,7 @@ public class Unit : MonoBehaviour
     {
         //Old Hex
         curHex.UnitsInHex.Remove(this);
-        
+
         isMoving = false;
         curHex = targetHex;
         targetHex = null;
@@ -201,18 +210,22 @@ public class Unit : MonoBehaviour
 
         //New Hex
         curHex.UnitsInHex.Add(this);
-        
+
         if (faction == gameMgr.PlayerFaction)
         {
             gameMgr.ClearDarkFogAroundUnit(this);
             ToggleBorder(true, Color.green);
         }
         gameMgr.HideOtherLandUnits(this);
+
+        if (curHex == destinationHex)
+            destinationHex = null;
     }
     
     private void MoveToHex()
     {
         ToggleBorder(false, Color.green);
+
         //Debug.Log($"CurPos-{curPos.x}:{curPos.y}");
         //Debug.Log(targetHex);
 
@@ -233,15 +246,20 @@ public class Unit : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(1))
         {
+            //Debug.Log($"To Move Hex:{curHex.X}, {curHex.Y}");
             if (gameMgr.CheckIfHexIsAdjacent(gameMgr.CurUnit.CurHex, curHex))
             {
                 if (faction == gameMgr.PlayerFaction)//same side unit
+                {
+                    //Debug.Log("True");
                     gameMgr.CurUnit.PrepareMoveToHex(curHex);
+                }
                 else//diff side unit
                 {
-                    Debug.Log($"{gameMgr.CurUnit} Attacks {unitName}");
+                    Debug.Log($"{gameMgr.CurUnit} tries to Attack {unitName}");
                     if (curHex.MoveCost > movePoint)
                         return;
+
                     gameMgr.CurUnit.AttackUnit(curHex, this);
                 }
             }
@@ -297,7 +315,7 @@ public class Unit : MonoBehaviour
         Hex nextHex = null;
 
         //Find destination hex
-
+        
         Debug.Log($"dest:{destinationHex.X}, {destinationHex.Y}");
         nextHex = HexCalculator.FindNextHexToGo(this, CurHex, destinationHex, gameMgr.AllHexes);
 

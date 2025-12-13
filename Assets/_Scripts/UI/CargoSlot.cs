@@ -50,7 +50,7 @@ public class CargoSlot : MonoBehaviour, IDropHandler
 
         if (stockDrag == null)
             return;
-        
+
         int cargoLeft = ship.AddCargo(holdId, stockDrag.Cargo);
 
         if (uiMgr.InEurope)
@@ -59,7 +59,7 @@ public class CargoSlot : MonoBehaviour, IDropHandler
             //Buy from market
             gameMgr.PlayerFaction.Money -=
                 stockDrag.Cargo.Quantity * EUMgr.EuropeStocks[stockDrag.Cargo.ProductID].AskPrice;
-            
+
             uiMgr.UpdateMoneyEuropeText();
         }
         else

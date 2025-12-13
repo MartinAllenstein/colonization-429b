@@ -38,13 +38,17 @@ public class Hex : MonoBehaviour
     public HexType HexType { get { return hexType; } }
 
     [Header("Basic")]
-    [SerializeField]
+    [SerializeField] 
     private SpriteRenderer terrainSprite;
-    public SpriteRenderer TerrainSprite { get { return terrainSprite; } }
-    
+    public SpriteRenderer TerrainSprite { get {  return terrainSprite; } }
+
     [SerializeField]
     private SpriteRenderer forestSprite;
     public SpriteRenderer ForestSprite { get { return forestSprite; } }
+
+    [SerializeField]
+    private SpriteRenderer coastSprite;
+    public SpriteRenderer CoastSprite { get { return coastSprite; } }
 
     [Header("Fog of War")]
     [SerializeField]
@@ -53,23 +57,6 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private SpriteRenderer darkSprite;
 
-    [Header("Town")]
-    [SerializeField]
-    private bool hasTown;
-
-    public bool HasTown {get { return hasTown;} set { hasTown = value;  } }
-
-    [Header("River")]
-    private bool hasRiver;
-
-    [Header("Forest")]
-    private bool hasForest;
-    public bool HasForest { get { return hasForest; } set { hasForest = value; } }
-
-    [SerializeField]
-    private int moveCost = 1;
-    public int MoveCost { get { return moveCost; } }
-    
     [Header("Terrain")]
     [SerializeField]
     private Sprite[] terrainSprites;
@@ -90,21 +77,42 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private bool specialHex;
     public bool SpecialHex { get { return specialHex; } set { specialHex = value; } }
-    
+
+    [Header("Town")]
     [SerializeField]
-    private TMP_Text hexText;
+    private bool hasTown;
+    public bool HasTown { get { return hasTown; } set { hasTown = value; } }
+
+    [SerializeField]
+    private Town town;
+    public Town Town { get { return town; } set { town = value; } }
+
+    [Header("River")]
+    [SerializeField]
+    private bool hasRiver;
+
+    [Header("Forest")]
+    [SerializeField]
+    private bool hasForest;
+    public bool HasForest { get { return hasForest; } set { hasForest = value; } }
+
+    [SerializeField]
+    private int moveCost = 1;
+    public int MoveCost { get { return moveCost; } }
 
     [SerializeField]
     protected bool visible = false;
     public bool Visible { get { return visible; } set { visible = value; } }
-    
-    [SerializeField]
-    private Town town;
-    public Town Town { get { return town; } set { town = value; } }
-    
+
     [SerializeField]
     private List<Unit> unitsInHex = new List<Unit>();
     public List<Unit> UnitsInHex { get { return unitsInHex; } set { unitsInHex = value; } }
+
+    [SerializeField]
+    private string coastDigit = "000000";
+
+    [SerializeField]
+    private TMP_Text hexText;
 
     [SerializeField]
     private Unit labor;
@@ -113,9 +121,9 @@ public class Hex : MonoBehaviour
     [SerializeField]
     private int yieldId = -1; //current ID of resource yield that labor is working
     public int YieldID { get { return yieldId; } set { yieldId = value; } }
-    
-    private GameManager gameMgr;
 
+    private GameManager gameMgr;
+    private UIManager uiMgr;
 
     
     void Start()
@@ -232,8 +240,14 @@ public class Hex : MonoBehaviour
 
     public void OnMouseOver()
     {
+        if (gameMgr.CurUnit == null)
+            return;
+
         if (Input.GetMouseButtonDown(1))
         {
+            if (gameMgr.CurUnit.CurHex == null)
+                return;
+
             //Debug.Log($"Hex:{x}, {y}");
             if (gameMgr.CheckIfHexIsAdjacent(gameMgr.CurUnit.CurHex, this))
             {

@@ -51,11 +51,17 @@ public class StockDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         image.raycastTarget = false;
 
         StockDragSetQuantity();
+
+        if (cargo.Quantity <= 0)
+            return;
     }
 
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (cargo.Quantity <= 0)
+            return;
+
         //Debug.Log("On Drag");
         transform.position = Input.mousePosition;
     }

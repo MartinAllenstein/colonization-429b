@@ -55,6 +55,7 @@ public class NavalUnit : Unit
         navalUnitType = data.navalUnitType;
         armed = data.armed;
         cargoHoldNum = data.cargoHoldNum;
+        unitPrice = data.price;
     }
     
     public override void PrepareMoveToHex(Hex targetHex) //Begin to move by RC or AI auto movement
@@ -72,25 +73,31 @@ public class NavalUnit : Unit
             else //No town
                 StayOnHex(curHex);
         }
+        else //Ocean Hex
+        {
+            if (curHex.HasTown) //There is our town in old hex
+            {
+                if (curHex.Town != null && curHex.Town.Faction == faction)
+                    gameMgr.CheckIfPassengerReadyToBoardShip(this, curHex, faction);
+            }
+        }
     }
     
     protected override void StayOnHex(Hex hex)
     {
         base.StayOnHex(hex);
 
-        foreach (LandUnit unit in passengers)
+        foreach (LandUnit passenger in passengers)
         {
-            //Remove passenger from old ocean hex
-            unit.CurHex.UnitsInHex.Remove(unit);
-            //Add passenger to new ocean hex
-            hex.UnitsInHex.Add(unit);
-            
-            unit.CurHex = hex;
-            unit.CurPos = hex.Pos;
+            passenger.CurHex.UnitsInHex.Remove(passenger);//remove passenger from old ocean hex
+            hex.UnitsInHex.Add(passenger);//add passenger to new ocean hex
+
+            passenger.CurHex = hex;
+            passenger.CurPos = hex.Pos;
         }
         if (faction == gameMgr.PlayerFaction)
             gameMgr.CheckUnmetFaction(this);
-        
+
         gameMgr.CheckShipToEurope();
 
         if (destinationHex != null)
@@ -119,8 +126,7 @@ public class NavalUnit : Unit
                 return cargoLeft;
             }
         }
-
-        //Debug.Log("Added Cargo");
+        Debug.Log("Added Cargo");
         return newCargo.Quantity;
     }
 }

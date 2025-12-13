@@ -78,7 +78,6 @@ public static class HexCalculator
             if (hex != null)
                 hexList.Add(hex);
         }
-
         return hexList;
     }
 
@@ -94,8 +93,29 @@ public static class HexCalculator
             if (hex.HasTown)
                 return true;
         }
-
         return false;
+    }
+    
+    public static string CheckIfHexAroundIsCoast(Hex[,] hexes, Hex center)
+    {
+        string s = "";
+
+        for (int i = 0; i < 6; i++)
+        {
+            Hex hex = FindHexByDir(center, (HexDirection)i, hexes);
+
+            if (hex == null)
+            {
+                s += "0";
+                continue;
+            }
+
+            if (hex.HexType == HexType.Ocean)
+                s += "0";
+            else
+                s += "1";
+        }
+        return s;
     }
 
     public static Hex[] GetHexAroundToArray(Hex[,] hexes, Hex center)

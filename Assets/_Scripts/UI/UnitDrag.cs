@@ -114,7 +114,7 @@ public class UnitDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDrag
     public void OnPointerClick(PointerEventData eventData)
     {
         Debug.Log("Click at Unit");
-        UIManager.instance.SelectUnitForAction(this);
+        //UIManager.instance.SelectUnitForAction(this); //Actions
         
         if (landUnit.UnitStatus == UnitStatus.None || landUnit.UnitStatus == UnitStatus.ToBoard
                                                    || landUnit.UnitStatus == UnitStatus.Hidden)

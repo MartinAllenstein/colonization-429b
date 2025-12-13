@@ -175,19 +175,17 @@ public class GameManager : MonoBehaviour
 
                 GameObject hexObj = Instantiate(hexPrefab, hexPos, Quaternion.identity, hexParent);
                 Hex hex = hexObj.GetComponent<Hex>();
-                
-                int n = Random.Range(oceanEdgeIndex - 3, oceanEdgeIndex + 4);
+
+                int n = Random.Range(oceanEdgeIndex - 4, oceanEdgeIndex + 5);
 
                 if (x >= n)
                     hex.HexInit(x, y, hexPos, this, 0);//Ocean
                 else
                 {
-                    //int i = Random.Range(1, hexData.Length);
-                    //hex.HexInit(x, y, hexPos, this, i);//Land
-                    
-                    GenerateAllBiomes(x, y, hex, hexPos);//Land with all biomes
+                    /*int i = Random.Range(1, hexData.Length);
+                    hex.HexInit(x, y, hexPos, this, i);//Land*/
+                    GenerateAllBiomes(x, y, hex, hexPos);
                 }
-            
                 //Debug.Log($"{x}:{y}");
                 allHexes[x, y] = hex;
             }
@@ -205,7 +203,7 @@ public class GameManager : MonoBehaviour
     private void DetermineOcean()
     {
         oceanEdgeIndex = WIDTH - Random.Range(7, 10);
-        //Debug.Log($"min:{oceanEdgeIndex}");
+        //Debug.Log($"min:{oceanIndexMin}");
     }
     
     
@@ -286,7 +284,7 @@ public class GameManager : MonoBehaviour
     }
     
     
-    private void GenerateEuropeanShip(Faction faction, int yPos)
+    private void GenerateEuropeanShip(Faction faction, int yPos, int i)
     {
         int x = WIDTH - 2; //near right edge of a map
         int y = yPos;
@@ -295,7 +293,7 @@ public class GameManager : MonoBehaviour
         GameObject obj = Instantiate(navalUnitPrefab, hex.Pos, Quaternion.identity, faction.UnitParent);
         NavalUnit ship = obj.GetComponent<NavalUnit>();
 
-        ship.UnitInit(this, faction, navalUnitData[0]); //Caravel
+        ship.UnitInit(this, faction, navalUnitData[i]);
         ship.SetupPosition(hex);
         faction.Units.Add(ship); //First Unit of European nations is a ship
 
@@ -308,21 +306,11 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            Hex destinationHex = FindNearestLandHexToLand(yPos);
-            if(destinationHex != null)
-                ship.SetUnitDestination(destinationHex);
+            Hex destinatioHex = FindNearestLandHexToLand(yPos);
+            if (destinatioHex != null)
+                ship.SetUnitDestination(destinatioHex);
         }
     }
-
-
-    /*private void GenerateAllEuropeanShips()
-    {
-        for (int i = 0; i < 5; i++)
-        {
-            GenerateEuropeanShip(factions[i]);
-        }
-    }
-    */
 
     
     public void ShowToggleBorder(Unit unit)
@@ -347,7 +335,12 @@ public class GameManager : MonoBehaviour
 
 
     public void ClearDarkFogAroundUnit(Unit unit)
-    { unit.CurHex.DiscoverHex();
+    {
+        //Debug.Log($"Center: {unit.CurHex.X},{unit.CurHex.Y}");
+        if (unit.CurHex == null)
+            return;
+
+        unit.CurHex.DiscoverHex();
 
         List<Hex> adjHexes = HexCalculator.GetHexAround(allHexes, unit.CurHex);
 
@@ -362,6 +355,7 @@ public class GameManager : MonoBehaviour
 
     public void SelectPlayerUnit(Unit unit)
     {
+        //Unselect Old Current Unit
         if (curUnit != null)
         {
             ClearToggleBorder(curUnit);
@@ -371,11 +365,12 @@ public class GameManager : MonoBehaviour
                 curUnit.gameObject.SetActive(false);
         }
 
-        if (unit.UnitType == UnitType.Land && unit.UnitStatus != UnitStatus.WorkInField)
-        {
+        //Set New Next Unit
+        //if (unit.UnitType == UnitType.Land && unit.UnitStatus != UnitStatus.WorkInField)
+        //{
             unit.gameObject.SetActive(true);
             unit.SetUnitToFrontLayerOrder();
-        }
+        //}
 
         curUnit = unit;
         CameraController.instance.MoveCamera(curUnit.transform.position);
@@ -422,7 +417,7 @@ public class GameManager : MonoBehaviour
         GameObject obj = Instantiate(landUnitPrefab, hex.Pos, Quaternion.identity, ship.PassengerParent.transform);
         LandUnit unit = obj.GetComponent<LandUnit>();
 
-        unit.UnitInit(this,UIManager.instance,  faction, landUnitData[unitId]);
+        unit.UnitInit(this, UIManager.instance, faction, landUnitData[unitId]);
         unit.SetupPosition(hex);
 
         unit.UnitStatus = UnitStatus.OnBoard;
@@ -460,15 +455,53 @@ public class GameManager : MonoBehaviour
             return -1;
     }
     
+    private bool CheckNextUnit(Unit unit)
+    {
+        //Next Unit that should not be selected will return false
+
+        //Workers in field
+        if (unit.UnitType == UnitType.Land && unit.UnitStatus == UnitStatus.WorkInField)
+            return false;
+
+        //Hidden ship
+        if (unit.UnitType == UnitType.Naval && unit.UnitStatus == UnitStatus.Hidden)
+            return false;
+
+        //Passengers in hidden ship
+        if (unit.UnitType == UnitType.Land && unit.UnitStatus == UnitStatus.OnBoard)
+        {
+            LandUnit landUnit = (LandUnit)unit;
+
+            if (landUnit.TransportShip.UnitStatus == UnitStatus.Hidden)
+                return false;
+        }
+        return true;
+    }
+    
     private void SelectNextPlayerUnit()
     {
-        int i = FindIndexOfCurUnit();
-        i++;
+        int curId = FindIndexOfCurUnit();
+        
+        if (curId == -1)
+            return;
 
-        if (i >= playerFaction.Units.Count)
-            i = 0;
+        for (int i = 0; i < playerFaction.Units.Count; i++)
+        {
+            curId++;
 
-        SelectPlayerUnit(playerFaction.Units[i]);
+            if (curId >= playerFaction.Units.Count)
+                curId = 0;
+
+            //Debug.Log($"Select Unit:{i}");
+            bool success = CheckNextUnit(playerFaction.Units[curId]);
+
+            if (success)
+            {
+                SelectPlayerUnit(playerFaction.Units[curId]);
+                Debug.Log($"Cur Unit:{curUnit.UnitName}-{curUnit.UnitStatus}");
+                break;
+            }
+        }
     }
 
     public void GenerateTown(Faction faction, Hex curHex)
@@ -539,6 +572,7 @@ public class GameManager : MonoBehaviour
         {
             unit.CurHex.ClearForest();
             unit.UnitStatus = UnitStatus.None;
+            unit.ChangeStatusIcon();
         }
     }
     
@@ -548,17 +582,18 @@ public class GameManager : MonoBehaviour
         {
             GenerateTown(faction, unit.CurHex);
             unit.UnitStatus = UnitStatus.None;
+            unit.ChangeStatusIcon();
         }
     }
     
-    public NavalUnit CheckIfHexHasOurShipToBoard(Hex hex)
+    public NavalUnit CheckIfHexHasOurShipToBoard(Hex hex, Faction faction)
     {
         foreach (Unit unit in hex.UnitsInHex)
         {
-            if (unit.UnitType == UnitType.Naval && unit.Faction == playerFaction)
+            if (unit.UnitType == UnitType.Naval && unit.Faction == faction)
             {
                 NavalUnit ship = (NavalUnit)unit;
-                if (ship.Passengers.Count < ship.CargoHoldNum)
+                if ((ship.Passengers.Count + ship.CargoList.Count) < ship.CargoHoldNum)
                     return ship;
             }
         }
@@ -594,6 +629,10 @@ public class GameManager : MonoBehaviour
         if (playerFaction.Units.Count > 0)
         {
             Unit firstUnit = playerFaction.Units[0];
+
+            if (firstUnit.UnitStatus == UnitStatus.Hidden)
+                return;
+
             SelectPlayerUnit(firstUnit);
             CameraController.instance.MoveCamera(firstUnit.CurPos);
         }
@@ -601,19 +640,29 @@ public class GameManager : MonoBehaviour
     
     public void Endturn()
     {
+        if (playerTurn == false)
+            return;
+
         if (curUnit != null)
             curUnit.ToggleBorder(false, Color.green);
 
+        Debug.Log("End Turn");
+
+        year++;
+        DialogManager.instance.ToggleAiMoveDialog(true);
+
         UIManager.instance.CheckActiveUIPanel();
         EuropeManager.instance.UpdateShipInTransitTurn();
-        
-        Debug.Log("End Turn");
+
         playerTurn = false;
         AIManager.instance.StartAITurn();
     }
     
-    public void SetupCurrentTown(Town town)//setup town panel
+    public void SetupCurrentTown(Town town)//setup before open town panel
     {
+        if (UIManager.instance.TownPanel.activeInHierarchy)
+            return;
+
         curTown = town;
         Hex[] aroundHexes = HexCalculator.GetHexAroundToArray(allHexes, curTown.CurHex);
 
@@ -637,14 +686,15 @@ public class GameManager : MonoBehaviour
         playerTurn = true;
         SelectPlayerFirstUnit();
         AccumulateStockAllTowns();
+        DialogManager.instance.ToggleAiMoveDialog(false);
     }
 
     public void HideOtherLandUnits(Unit thisUnit)
     {
-        if(thisUnit.CurHex == null)
+        if (thisUnit.CurHex == null)
             return;
-        
-        foreach (Unit other in thisUnit.CurHex.UnitsInHex)
+
+        foreach(Unit other in thisUnit.CurHex.UnitsInHex)
         {
             if (other.UnitType == UnitType.Land && other.Faction == playerFaction)
             {
@@ -653,6 +703,22 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+    
+    public void ShowFirstOfOtherUnit(Hex hex)
+    {
+        if (hex.UnitsInHex.Count == 0)
+            return;
+
+        foreach (Unit other in hex.UnitsInHex)
+        {
+            if (other.UnitStatus != UnitStatus.WorkInField)
+            {
+                other.gameObject.SetActive(true);
+                break;
+            }
+        }
+    }
+
     
     public void EuropePanel()
     {
@@ -694,9 +760,9 @@ public class GameManager : MonoBehaviour
         SelectPlayerUnit(ship);
         CameraController.instance.MoveCamera(ship.CurPos);
         ship.Visible = true;
+        ship.UnitStatus = UnitStatus.None;
     }
     
-    // New //
     private void GenerateAllEuropeanShips()
     {
         int interval = HEIGHT / 5;
@@ -716,7 +782,7 @@ public class GameManager : MonoBehaviour
             int yPosition = spots[index];
             spots.RemoveAt(index);
 
-            GenerateEuropeanShip(factions[i], yPosition);
+            GenerateEuropeanShip(factions[i], yPosition, 0); //0 is caravel
         }
     }
 
@@ -727,7 +793,7 @@ public class GameManager : MonoBehaviour
         if (!playerFaction.Units.Contains(ship))
         {
             Debug.Log("New Ship");
-            GenerateEuropeanShip(playerFaction, y);
+            //GenerateEuropeanShip(playerFaction, y, (int)ship.NavalUnitType);
         }
         else
         {
@@ -905,7 +971,7 @@ public class GameManager : MonoBehaviour
         {
             //ArriveAtPort
             unit.UnitStatus = UnitStatus.None;
-            //unit.ChangeStatusIcon();
+            unit.ChangeStatusIcon();
             gameObject.transform.parent = faction.UnitParent.transform;
             unit.TransportShip = null;
         }
