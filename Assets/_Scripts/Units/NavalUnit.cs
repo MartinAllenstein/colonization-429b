@@ -92,6 +92,9 @@ public class NavalUnit : Unit
             gameMgr.CheckUnmetFaction(this);
         
         gameMgr.CheckShipToEurope();
+
+        if (destinationHex != null)
+            CheckMoveToDestination();
     }
 
     public int AddCargo(int id, Cargo newCargo)

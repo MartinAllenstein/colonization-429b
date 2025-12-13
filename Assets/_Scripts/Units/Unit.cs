@@ -102,6 +102,9 @@ public class Unit : MonoBehaviour
     private Sprite[] statusSpritesList;
     public Sprite[] StatusSpritesList { get { return statusSpritesList; } }
     
+    [SerializeField]
+    protected Hex destinationHex;
+    public Hex DestinationHex { get { return destinationHex; } set { destinationHex = value; } }
     
 
     [SerializeField]
@@ -286,5 +289,27 @@ public class Unit : MonoBehaviour
         }
     }
     
+    public void CheckMoveToDestination()
+    {
+        if (destinationHex == null)
+            return;
+
+        Hex nextHex = null;
+
+        //Find destination hex
+
+        Debug.Log($"dest:{destinationHex.X}, {destinationHex.Y}");
+        nextHex = HexCalculator.FindNextHexToGo(this, CurHex, destinationHex, gameMgr.AllHexes);
+
+        if (nextHex == null)
+            return;
+
+        PrepareMoveToHex(nextHex);
+    }
+    
+    public void SetUnitDestination(Hex hex)
+    {
+        destinationHex = hex;
+    }
     
 }

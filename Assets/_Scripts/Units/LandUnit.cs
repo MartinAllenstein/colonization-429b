@@ -214,6 +214,9 @@ public class LandUnit : Unit
         if (ship != null)
             BoardingShip(ship);
         
+        if (destinationHex != null)
+            CheckMoveToDestination();
+        
         if (faction == gameMgr.PlayerFaction)
             gameMgr.CheckUnmetFaction(this);
     }

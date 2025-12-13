@@ -24,15 +24,13 @@ public class AIManager : MonoBehaviour
     
     private void AutoMoveToHex(Unit unit)
     {
-        int n = Random.Range(0, 6);
-
-        Hex toGoHex = HexCalculator.FindHexByDir(unit.CurHex, (HexDirection)n, GameManager.instance.AllHexes);
-
-        if (toGoHex == null)
-            return;
-
         unit.ShowHideSprite(true);
-        unit.PrepareMoveToHex(toGoHex);
+        
+        if (unit.DestinationHex != null)
+            unit.CheckMoveToDestination();
+        else
+            RandomMoveOneHex(unit);
+        
     }
     
     private IEnumerator EnemyUnitMoves()
@@ -75,6 +73,31 @@ public class AIManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         StartCoroutine(EnemyUnitMoves());
+    }
+    
+    public void RandomMoveOneHex(Unit unit)
+    {
+        Hex anyHex = null;
+
+        int n = Random.Range(0, 6);
+
+        //Move
+        anyHex = HexCalculator.FindHexByDir(unit.CurHex, (HexDirection)n, GameManager.instance.AllHexes);
+
+        if (anyHex == null)
+            return;
+
+        switch (unit.UnitType)
+        {
+            case UnitType.Land:
+                LandUnit landUnit = (LandUnit)unit;
+                landUnit.PrepareMoveToHex(anyHex);
+                break;
+            case UnitType.Naval:
+                NavalUnit navalUnit = (NavalUnit)unit;
+                navalUnit.PrepareMoveToHex(anyHex);
+                break;
+        }
     }
     
 }

@@ -306,6 +306,12 @@ public class GameManager : MonoBehaviour
             CameraController.instance.MoveCamera(ship.CurPos);
             ship.Visible = true;
         }
+        else
+        {
+            Hex destinationHex = FindNearestLandHexToLand(yPos);
+            if(destinationHex != null)
+                ship.SetUnitDestination(destinationHex);
+        }
     }
 
 
@@ -933,6 +939,25 @@ public class GameManager : MonoBehaviour
     public void PayUnitPrice(int i)
     {
         playerFaction.Money -= landUnitData[i].price;
+    }
+    
+    private Hex FindNearestLandHexToLand(int y)
+    {
+        int min = oceanEdgeIndex - 3;
+        int max = oceanEdgeIndex + 4;
+
+        Hex destHex = null;
+
+        for (int x = min; x <= max; x++)
+        {
+            //Debug.Log($"checking:{x},{y}");
+            if (allHexes[x, y].HexType != HexType.Ocean)
+            {
+                //Debug.Log($"found:{x},{y}");
+                destHex = allHexes[x, y];
+            }
+        }
+        return destHex;
     }
     
 }
